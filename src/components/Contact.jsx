@@ -80,22 +80,34 @@ export default function Contact() {
     setErrors({});
 
     setLoading(true);
+    
+    // Read the Access Key dynamically from environment variables
+    const web3FormsKey = import.meta.env.VITE_WEB3FORMS_KEY;
+
+    if (!web3FormsKey) {
+      console.error("Missing VITE_WEB3FORMS_KEY environment variable.");
+      setErrors({ general: 'Configuration error. Missing mail API keys.' });
+      setLoading(false);
+      return;
+    }
+    
+    const formData = new FormData();
+    formData.append("access_key", web3FormsKey);
+    formData.append("name", form.name);
+    formData.append("email", form.email);
+    formData.append("subject", form.subject);
+    formData.append("message", form.message);
+
     try {
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: form.name,
-          email: form.email,
-          subject: form.subject,
-          message: form.message,
-        }),
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to send message');
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || 'Failed to send message');
       }
 
       setSent(true);
@@ -175,6 +187,21 @@ export default function Contact() {
               </div>
             )}
 
+            {errors.general && (
+              <div style={{
+                marginBottom: '1rem',
+                padding: '0.75rem 1rem',
+                background: 'rgba(255,77,77,0.08)',
+                border: '0.5px solid rgba(255,77,77,0.3)',
+                borderRadius: '4px',
+                fontFamily: 'var(--font-code)',
+                fontSize: '0.78rem',
+                color: '#ff4d4d',
+              }}>
+                ✕ {errors.general}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Name */}
@@ -196,21 +223,20 @@ export default function Contact() {
 
                 {/* Email */}
                 <div>
-                <label htmlFor="contact-email" style={{ fontFamily: 'var(--font-code)', fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.1em', display: 'block', marginBottom: '0.4rem' }}>EMAIL</label>
-                <input
-                  id="contact-email"
-                  name="email"
-                  type="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="your@email.com"
-                  style={inputStyle(errors.email)}
-                  onFocus={(e) => { e.target.style.borderColor = 'rgba(232,255,0,0.4)'; e.target.style.boxShadow = '0 0 12px rgba(232,255,0,0.05)'; }}
-                  onBlur={(e) => { e.target.style.borderColor = errors.email ? '#ff4d4d' : 'rgba(232,255,0,0.15)'; e.target.style.boxShadow = 'none'; }}
-                />
-                {errors.email && <span style={{ fontFamily: 'var(--font-code)', fontSize: '0.68rem', color: '#ff4d4d', marginTop: '0.25rem', display: 'block' }}>{errors.email}</span>}
-              </div>
-
+                  <label htmlFor="contact-email" style={{ fontFamily: 'var(--font-code)', fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.1em', display: 'block', marginBottom: '0.4rem' }}>EMAIL</label>
+                  <input
+                    id="contact-email"
+                    name="email"
+                    type="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    placeholder="your@email.com"
+                    style={inputStyle(errors.email)}
+                    onFocus={(e) => { e.target.style.borderColor = 'rgba(232,255,0,0.4)'; e.target.style.boxShadow = '0 0 12px rgba(232,255,0,0.05)'; }}
+                    onBlur={(e) => { e.target.style.borderColor = errors.email ? '#ff4d4d' : 'rgba(232,255,0,0.15)'; e.target.style.boxShadow = 'none'; }}
+                  />
+                  {errors.email && <span style={{ fontFamily: 'var(--font-code)', fontSize: '0.68rem', color: '#ff4d4d', marginTop: '0.25rem', display: 'block' }}>{errors.email}</span>}
+                </div>
               </div>
 
               {/* Subject */}
@@ -247,8 +273,13 @@ export default function Contact() {
                 {errors.message && <span style={{ fontFamily: 'var(--font-code)', fontSize: '0.68rem', color: '#ff4d4d', marginTop: '0.25rem', display: 'block' }}>{errors.message}</span>}
               </div>
 
-              <button type="submit" className="btn-primary w-full sm:w-auto" style={{ alignSelf: 'flex-start' }}>
-                ◆ Send Message
+              <button 
+                type="submit" 
+                className="btn-primary w-full sm:w-auto" 
+                style={{ alignSelf: 'flex-start' }}
+                disabled={loading}
+              >
+                ◆ {loading ? 'Sending...' : 'Send Message'}
               </button>
             </form>
           </div>
