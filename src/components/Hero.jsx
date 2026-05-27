@@ -358,7 +358,7 @@ export default function Hero() {
               justifyContent: 'center',
             }}>
               <img
-                src="src/assets/profile.jpeg"
+                src="/profile.jpeg"
                 alt="Shalom profile photo"
                 onError={(e) => {
                   e.currentTarget.src = heroAsset;

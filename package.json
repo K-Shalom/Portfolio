@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "serve:api": "node server.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -16,6 +17,9 @@
     "@mui/material": "^6.5.0",
     "@mui/material-pigment-css": "^6.5.0",
     "@openrouter/agent": "^0.7.0",
+    "dotenv": "^16.1.4",
+    "express": "^4.18.4",
+    "nodemailer": "^6.9.5",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"
   },

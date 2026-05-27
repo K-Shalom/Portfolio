@@ -44,6 +44,7 @@ export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [errors, setErrors] = useState({});
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const { ref: titleRef, activate: activateTitle } = useAntigravity(0);
   const titleTrigger = useScrollTrigger(
@@ -72,19 +73,40 @@ export default function Contact() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const v = validate();
     if (Object.keys(v).length > 0) { setErrors(v); return; }
     setErrors({});
 
-    const mailto = `mailto:shalomkubwimbabazi@gmail.com?subject=${encodeURIComponent(form.subject)}&body=${encodeURIComponent(
-      `Name: ${form.name}\nEmail: ${form.email}\n\n${form.message}`
-    )}`;
-    window.open(mailto, '_blank');
-    setSent(true);
-    setTimeout(() => setSent(false), 4000);
-    setForm({ name: '', email: '', subject: '', message: '' });
+    setLoading(true);
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          subject: form.subject,
+          message: form.message,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
+      setSent(true);
+      setTimeout(() => setSent(false), 4000);
+      setForm({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setErrors({ general: 'Failed to send message. Please try again later.' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (e) => {
@@ -149,7 +171,7 @@ export default function Contact() {
                 fontSize: '0.78rem',
                 color: 'var(--accent-secondary)',
               }}>
-                ✓ Message prepared — your email client should open shortly.
+                ✓ Message sent successfully.
               </div>
             )}
 
