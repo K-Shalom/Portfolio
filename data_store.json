@@ -1,0 +1,389 @@
+{
+  "projects": [
+    {
+      "id": "proj-1784927454107",
+      "title": "jasjas",
+      "coverImage": "https://imgs.search.brave.com/MereD684MZcLHDEDazSO8fPMWY2MLJrI_p80j98ae4Y/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pbWFn/ZXMuc2Vla2xvZ28u/Y29tL2xvZ28tcG5n/LzUwLzIvc2ltYmEt/bGlvbi1raW5nLWxv/Z28tcG5nX3NlZWts/b2dvLTUwNzQ5MS5w/bmc",
+      "description": "qWWWEWEW",
+      "tags": [
+        "java",
+        "spring Boot"
+      ],
+      "languages": [
+        "java"
+      ],
+      "categories": [
+        "Web",
+        "Applications"
+      ],
+      "github": "https://github.com/K-Shalom/Portfolio",
+      "live": "https://chatgpt.com/c/6a63b842-9498-83ea-b2a4-962945710f22",
+      "featured": false
+    },
+    {
+      "id": "proj-1",
+      "title": "Smart Small Business Management Web App",
+      "coverImage": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80",
+      "description": "Advanced Spring architecture framework mapped over secure MySQL structures featuring complex relational schemas, dynamic ERD indices, authentication layers, and Spring Security integration for role-based access control across enterprise-grade business workflows.",
+      "tags": [
+        "Java",
+        "Spring Boot",
+        "Spring Security",
+        "MySQL",
+        "JSP",
+        "JDBC"
+      ],
+      "languages": [
+        "Java",
+        "SQL",
+        "HTML/CSS"
+      ],
+      "categories": [
+        "Web",
+        "Applications"
+      ],
+      "github": "https://github.com/K-Shalom",
+      "live": "https://github.com/K-Shalom",
+      "featured": true
+    },
+    {
+      "id": "proj-2",
+      "title": "Green Vehicle Exchange Initiative (GVEI)",
+      "coverImage": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
+      "description": "Contracted transportation performance platform engineered using Java AWT interfaces and indexed MySQL systems evaluating transportation datasets and optimization flows for eco-conscious vehicle exchange operations.",
+      "tags": [
+        "Java",
+        "AWT",
+        "MySQL"
+      ],
+      "languages": [
+        "Java",
+        "SQL"
+      ],
+      "categories": [
+        "Applications"
+      ],
+      "github": "https://github.com/K-Shalom",
+      "live": "#",
+      "featured": false
+    },
+    {
+      "id": "proj-3",
+      "title": "E-Portfolio System",
+      "coverImage": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+      "description": "Robust academic portfolio ecosystem utilizing PHP relational structures, custom authentication logic, Bootstrap interfaces, and scalable database integrations designed for academic performance tracking and presentation.",
+      "tags": [
+        "PHP",
+        "MySQL",
+        "Bootstrap",
+        "JavaScript"
+      ],
+      "languages": [
+        "PHP",
+        "JavaScript",
+        "HTML/CSS"
+      ],
+      "categories": [
+        "Academic",
+        "Web"
+      ],
+      "github": "https://github.com/K-Shalom",
+      "live": "#",
+      "featured": false
+    },
+    {
+      "id": "proj-4",
+      "title": "Local Chat App",
+      "coverImage": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
+      "description": "Real-time communication workspace utilizing dedicated WebSocket channels managed through Oracle Database infrastructure and responsive frontend interfaces enabling seamless multi-user messaging experiences.",
+      "tags": [
+        "React",
+        "Node.js",
+        "Socket.io",
+        "Oracle DB"
+      ],
+      "languages": [
+        "JavaScript",
+        "SQL"
+      ],
+      "categories": [
+        "Web"
+      ],
+      "github": "https://github.com/K-Shalom",
+      "live": "#",
+      "featured": true
+    },
+    {
+      "id": "proj-5",
+      "title": "Task Management System",
+      "coverImage": "https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?auto=format&fit=crop&w=800&q=80",
+      "description": "Multi-tier enterprise productivity platform exposing Spring Boot API endpoints consumed by modular React frontend layers with responsive data synchronization and real-time task assignment workflows.",
+      "tags": [
+        "Java",
+        "Spring Boot",
+        "React",
+        "REST APIs",
+        "MySQL"
+      ],
+      "languages": [
+        "Java",
+        "JavaScript",
+        "SQL"
+      ],
+      "categories": [
+        "Applications",
+        "Web"
+      ],
+      "github": "https://github.com/K-Shalom",
+      "live": "#",
+      "featured": true
+    },
+    {
+      "id": "proj-6",
+      "title": "Library Management System",
+      "coverImage": "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80",
+      "description": "Optimized native C++ data management deployment utilizing local sequential file handling and structured indexing logic for efficient book cataloging, member management, and borrowing record tracking.",
+      "tags": [
+        "C++",
+        "File Handling",
+        "Data Structures"
+      ],
+      "languages": [
+        "C++"
+      ],
+      "categories": [
+        "Academic",
+        "Applications"
+      ],
+      "github": "https://github.com/K-Shalom",
+      "live": "#",
+      "featured": false
+    },
+    {
+      "id": "proj-7",
+      "title": "Smart Attendance System (IoT)",
+      "coverImage": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+      "description": "Biometric attendance infrastructure integrating fingerprint authentication, timetable synchronization, and automated session validation for Rwanda Polytechnic environments with real-time data logging.",
+      "tags": [
+        "Arduino",
+        "IoT",
+        "Fingerprint Sensor",
+        "Embedded Systems"
+      ],
+      "languages": [
+        "C++",
+        "Arduino Wiring"
+      ],
+      "categories": [
+        "Academic",
+        "Applications",
+        "IoT"
+      ],
+      "github": "https://github.com/K-Shalom",
+      "live": "#",
+      "featured": true
+    },
+    {
+      "id": "proj-8",
+      "title": "Smart Irrigation Monitoring System",
+      "coverImage": "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=800&q=80",
+      "description": "Automated irrigation ecosystem utilizing soil moisture sensors, relay control systems, servo mechanisms, LCD interfaces, and intelligent water distribution logic for precision agricultural automation.",
+      "tags": [
+        "Arduino",
+        "Sensors",
+        "Relay Modules",
+        "LCD",
+        "Servo Motor"
+      ],
+      "languages": [
+        "C++",
+        "Arduino Wiring"
+      ],
+      "categories": [
+        "Academic",
+        "Applications",
+        "IoT"
+      ],
+      "github": "https://github.com/K-Shalom",
+      "live": "#",
+      "featured": true
+    }
+  ],
+  "articles": [
+    {
+      "id": "art-1",
+      "title": "Architecting Enterprise Backend Systems with Spring Boot & Spring Security",
+      "coverImage": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80",
+      "summary": "A deep dive into role-based access control, JWT authentication, and relational database ORM optimization for mission-critical enterprise applications.",
+      "content": "Building scalable enterprise applications requires careful consideration of security, modularity, and database performance. In this article, I share my framework for structuring Spring Boot services with Spring Security, handling OAuth2/JWT tokens safely, and optimizing MySQL database indices for sub-millisecond query execution.\n\nKey Topics Covered:\n1. Enterprise Spring Boot Project Architecture & Package Organization\n2. Implementing Granular Role-Based Access Control (RBAC) with Spring Security\n3. Database ERD Design & High-Performance JDBC / JPA Mapping\n4. Production Security Hardening & Rate Limiting Guidelines",
+      "date": "2026-06-15",
+      "readTime": "6 min read",
+      "tags": [
+        "Java",
+        "Spring Boot",
+        "Backend Architecture",
+        "Security"
+      ],
+      "author": "Shalom Kubwimbabazi",
+      "link": "#",
+      "published": true
+    },
+    {
+      "id": "art-2",
+      "title": "Bridging Hardware & Web: Building IoT Micro-Controllers with Arduino & Node.js",
+      "coverImage": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80",
+      "summary": "Connecting embedded sensors and relay modules to web dashboards in real-time using serial protocols and WebSocket channels.",
+      "content": "Embedded systems development becomes immensely powerful when connected to modern web dashboards. By combining Arduino hardware sensors, relay actuators, and Node.js WebSocket gateways, we can build real-time monitoring platforms for smart agriculture, biometric attendance, and industrial automation.\n\nKey Takeaways:\n- Setting up Arduino Serial Communication & Non-Blocking Loops\n- Building a Node.js WebSocket Gateway for Hardware Telemetry\n- Designing High-Density Visual Dashboards in React\n- Managing Power & Relay Actuation Safely",
+      "date": "2026-05-20",
+      "readTime": "8 min read",
+      "tags": [
+        "Arduino",
+        "IoT",
+        "Embedded Systems",
+        "Node.js",
+        "WebSockets"
+      ],
+      "author": "Shalom Kubwimbabazi",
+      "link": "#",
+      "published": true
+    },
+    {
+      "id": "art-3",
+      "title": "The Full-Stack Developer Roadmap in East Africa",
+      "coverImage": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80",
+      "summary": "My journey and strategic advice for aspiring software engineers at Rwanda Polytechnic and across the continent mastering modern software paradigms.",
+      "content": "Software engineering in Rwanda and East Africa is experiencing an unprecedented revolution. From fintech to agricultural tech and smart governance, developers who master both enterprise backends (Java, PHP, Node) and responsive frontend frameworks (React, Tailwind) are driving transformation.\n\nIn this piece, I outline my personal learning roadmap, key projects to build, and technical habits that build long-term engineering excellence.",
+      "date": "2026-04-10",
+      "readTime": "5 min read",
+      "tags": [
+        "Career",
+        "Software Engineering",
+        "Rwanda Tech",
+        "Full-Stack"
+      ],
+      "author": "Shalom Kubwimbabazi",
+      "link": "#",
+      "published": true
+    }
+  ],
+  "certificates": [
+    {
+      "id": "cert-1",
+      "title": "Advanced Full-Stack Engineering & Spring Boot Architecture",
+      "issuer": "Rwanda Polytechnic - Karongi College",
+      "issueDate": "2026-03",
+      "credentialId": "RP-KC-2026-FS001",
+      "credentialUrl": "https://github.com/K-Shalom",
+      "coverImage": "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80",
+      "category": "Full-Stack & Backend",
+      "skills": [
+        "Java",
+        "Spring Boot",
+        "Spring Security",
+        "RESTful API Design"
+      ],
+      "verified": true
+    },
+    {
+      "id": "cert-2",
+      "title": "Embedded Systems & IoT Hardware Engineering Specialist",
+      "issuer": "Rwanda Tech Innovation Lab & Wokwi IoT",
+      "issueDate": "2025-11",
+      "credentialId": "IOT-SPEC-8842",
+      "credentialUrl": "https://github.com/K-Shalom",
+      "coverImage": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80",
+      "category": "Embedded & IoT",
+      "skills": [
+        "Arduino",
+        "Microcontrollers",
+        "Relay Control",
+        "Biometric Sensors"
+      ],
+      "verified": true
+    },
+    {
+      "id": "cert-3",
+      "title": "Relational Database Administration & ERD Systems",
+      "issuer": "Oracle Academy / Rwanda Polytechnic",
+      "issueDate": "2025-08",
+      "credentialId": "ORA-DB-99021",
+      "credentialUrl": "https://github.com/K-Shalom",
+      "coverImage": "https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=800&q=80",
+      "category": "Database Systems",
+      "skills": [
+        "MySQL",
+        "Oracle DB",
+        "SQL Optimization",
+        "JDBC"
+      ],
+      "verified": true
+    },
+    {
+      "id": "cert-4",
+      "title": "Modern React & Interactive Frontend Engineering",
+      "issuer": "OpenSource Community Rwanda",
+      "issueDate": "2025-05",
+      "credentialId": "REACT-RW-3321",
+      "credentialUrl": "https://github.com/K-Shalom",
+      "coverImage": "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80",
+      "category": "Frontend Engineering",
+      "skills": [
+        "React",
+        "JavaScript (ES6+)",
+        "Tailwind CSS",
+        "State Management"
+      ],
+      "verified": true
+    }
+  ],
+  "events": [
+    {
+      "id": "evt-1",
+      "title": "Rwanda Tech Innovation Summit & IoT Expo",
+      "organization": "Ministry of ICT & Innovation Rwanda",
+      "location": "Kigali Convention Centre / Huye Campus",
+      "date": "2026-05-18",
+      "role": "Presenter & Hardware Demonstrator",
+      "coverImage": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80",
+      "description": "Demonstrated the Smart Attendance Biometric IoT System and Smart Agricultural Irrigation Controller to regional technology leaders, academic advisors, and industry partners.",
+      "highlights": [
+        "Biometric Sensor Live Demo",
+        "IoT Cloud Sync Architecture",
+        "Networking with East Africa Tech Leaders"
+      ],
+      "category": "Exposition & Summit"
+    },
+    {
+      "id": "evt-2",
+      "title": "Karongi Engineering & Developer Hackathon",
+      "organization": "Rwanda Polytechnic - Karongi College",
+      "location": "Karongi College, Rwanda",
+      "date": "2026-02-10",
+      "role": "Lead Architect & Full-Stack Developer",
+      "coverImage": "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=800&q=80",
+      "description": "Built a 24-hour rapid prototype Enterprise Resource Platform powered by Spring Boot and React to automate student resource allocation.",
+      "highlights": [
+        "1st Place Innovation Award",
+        "Built REST API in under 6 hours",
+        "Real-time dashboard rendering"
+      ],
+      "category": "Hackathon"
+    },
+    {
+      "id": "evt-3",
+      "title": "East Africa Open Source Developer Conference",
+      "organization": "East Africa Developer Network",
+      "location": "Virtual / Huye Regional Hub",
+      "date": "2025-11-04",
+      "role": "Attendee & Panel Contributor",
+      "coverImage": "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?auto=format&fit=crop&w=800&q=80",
+      "description": "Participated in workshops on microservices architecture, serverless cloud deployments, and open-source contributions across African developer communities.",
+      "highlights": [
+        "Microservice Security Workshop",
+        "Git Workflow Best Practices",
+        "Open Source Collaboration"
+      ],
+      "category": "Conference"
+    }
+  ]
+}
