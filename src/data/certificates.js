@@ -1,0 +1,53 @@
+export const initialCertificates = [
+  {
+    id: 'cert-1',
+    title: 'Advanced Full-Stack Engineering & Spring Boot Architecture',
+    issuer: 'Rwanda Polytechnic - Karongi College',
+    issueDate: '2026-03',
+    credentialId: 'RP-KC-2026-FS001',
+    credentialUrl: 'https://github.com/K-Shalom',
+    coverImage: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
+    category: 'Full-Stack & Backend',
+    skills: ['Java', 'Spring Boot', 'Spring Security', 'RESTful API Design'],
+    verified: true,
+  },
+  {
+    id: 'cert-2',
+    title: 'Embedded Systems & IoT Hardware Engineering Specialist',
+    issuer: 'Rwanda Tech Innovation Lab & Wokwi IoT',
+    issueDate: '2025-11',
+    credentialId: 'IOT-SPEC-8842',
+    credentialUrl: 'https://github.com/K-Shalom',
+    coverImage: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=800&q=80',
+    category: 'Embedded & IoT',
+    skills: ['Arduino', 'Microcontrollers', 'Relay Control', 'Biometric Sensors'],
+    verified: true,
+  },
+  {
+    id: 'cert-3',
+    title: 'Relational Database Administration & ERD Systems',
+    issuer: 'Oracle Academy / Rwanda Polytechnic',
+    issueDate: '2025-08',
+    credentialId: 'ORA-DB-99021',
+    credentialUrl: 'https://github.com/K-Shalom',
+    coverImage: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?auto=format&fit=crop&w=800&q=80',
+    category: 'Database Systems',
+    skills: ['MySQL', 'Oracle DB', 'SQL Optimization', 'JDBC'],
+    verified: true,
+  },
+  {
+    id: 'cert-4',
+    title: 'Modern React & Interactive Frontend Engineering',
+    issuer: 'OpenSource Community Rwanda',
+    issueDate: '2025-05',
+    credentialId: 'REACT-RW-3321',
+    credentialUrl: 'https://github.com/K-Shalom',
+    coverImage: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80',
+    category: 'Frontend Engineering',
+    skills: ['React', 'JavaScript (ES6+)', 'Tailwind CSS', 'State Management'],
+    verified: true,
+  },
+];
+
+export const certificates = initialCertificates;
+export default certificates;
