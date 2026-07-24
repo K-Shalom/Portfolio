@@ -1,5 +1,6 @@
 /* global process */
 import express from 'express'
+import cors from 'cors'
 import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
 import path from 'path'
@@ -17,7 +18,32 @@ const app = express()
 const PORT = process.env.PORT || 3000
 const EMAIL_FROM = process.env.EMAIL_FROM || 'shalomkubwimbabazi@gmail.com'
 const EMAIL_TO = process.env.EMAIL_TO || EMAIL_FROM
-const EMAIL_APP_PASSWORD = process.env.EMAIL_APP_PASSWORD || 'wmxw ccbg oucg eiqj'
+const EMAIL_APP_PASSWORD = process.env.EMAIL_APP_PASSWORD || ''
+
+// --- CORS CONFIGURATION ---
+const allowedOrigins = [
+  'https://shalomk.me',
+  'https://portfolio-4y9.pages.dev',
+  'http://localhost:5173',
+  'http://localhost:3000',
+]
+
+if (process.env.ALLOWED_ORIGIN) {
+  allowedOrigins.push(process.env.ALLOWED_ORIGIN)
+}
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, or Postman)
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true)
+      }
+      return callback(null, true) // Pass through for external frontends
+    },
+    credentials: true,
+  })
+)
 
 // Persistence DB File
 const DB_FILE = path.join(process.cwd(), 'data_store.json')
@@ -369,10 +395,12 @@ async function startServer() {
     app.use(vite.middlewares)
   } else {
     const distPath = path.join(process.cwd(), 'dist')
-    app.use(express.static(distPath))
-    app.get('*', (_req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'))
-    })
+    if (fs.existsSync(distPath)) {
+      app.use(express.static(distPath))
+      app.get('*', (_req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'))
+      })
+    }
   }
 
   app.listen(PORT, '0.0.0.0', () => {
