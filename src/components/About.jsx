@@ -19,16 +19,20 @@ const philosophyPoints = [
 ];
 
 function RevealBlock({ children, delay = 0 }) {
-  const { ref, activate } = useAntigravity(delay);
+  const { ref: antigravRef, activate } = useAntigravity(delay);
   const triggerRef = useScrollTrigger(
     useCallback(() => activate(), [activate]),
     null,
     { threshold: 0.1 }
   );
 
+  const setRefCallback = useCallback((el) => {
+    antigravRef.current = el;
+    triggerRef.current = el;
+  }, [antigravRef, triggerRef]);
+
   return (
-    <div ref={(el) => { ref.current = el; triggerRef.current = el; }}
-      style={{ opacity: 0, transform: 'translateY(40px)' }}>
+    <div ref={setRefCallback} style={{ opacity: 0, transform: 'translateY(40px)' }}>
       {children}
     </div>
   );
@@ -63,7 +67,7 @@ export default function About() {
             }}>{'_identity'}</h3>
 
             <p style={{ color: 'var(--text-primary)', lineHeight: 1.8, fontSize: '0.95rem', marginBottom: '1.25rem' }}>
-              I'm <strong style={{ color: 'var(--accent-primary)' }}>Shalom Kubwimbabazi</strong>, an Advanced IT scholar at
+              I'm <strong style={{ color: 'var(--accent-primary)' }}>Shalom Kubwimbabazi</strong> (commonly known as <strong style={{ color: 'var(--accent-secondary)' }}>Shalom</strong> / <strong style={{ color: 'var(--accent-secondary)' }}>Shalx</strong> / <strong style={{ color: 'var(--accent-secondary)' }}>K-Shalom</strong>), an Advanced IT scholar at
               Rwanda Polytechnic – Karongi College. I engineer enterprise-grade applications,
               scalable backend systems, and embedded automation solutions.
             </p>
