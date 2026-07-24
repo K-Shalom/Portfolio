@@ -7,6 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies and Build Output
 node_modules
 dist
 dist-ssr
@@ -23,6 +24,8 @@ dist-ssr
 *.sln
 *.sw?
 
-.envdata_store.json
+# Environment & Local Data
+.env
+data_store.json
 metadata.json
 bun.lock
