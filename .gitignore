@@ -23,4 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 
-.env
+.envdata_store.json
+metadata.json
+bun.lock
