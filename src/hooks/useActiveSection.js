@@ -8,6 +8,7 @@ import { useState, useEffect, useRef } from 'react';
 export function useActiveSection(sectionIds = []) {
   const [activeSection, setActiveSection] = useState(sectionIds[0] || '');
   const observersRef = useRef([]);
+  const joinedIds = sectionIds.join(',');
 
   useEffect(() => {
     // Clean up previous observers
@@ -27,7 +28,7 @@ export function useActiveSection(sectionIds = []) {
 
             // Find the section with highest intersection ratio
             let maxRatio = 0;
-            let mostVisible = activeSection;
+            let mostVisible = null;
 
             sectionMap.forEach((ratio, sectionId) => {
               if (ratio > maxRatio) {
@@ -36,7 +37,7 @@ export function useActiveSection(sectionIds = []) {
               }
             });
 
-            if (maxRatio > 0) {
+            if (maxRatio > 0 && mostVisible) {
               setActiveSection(mostVisible);
             }
           });
@@ -54,7 +55,7 @@ export function useActiveSection(sectionIds = []) {
     return () => {
       observersRef.current.forEach((obs) => obs.disconnect());
     };
-  }, [sectionIds.join(',')]);
+  }, [joinedIds, sectionIds]);
 
   return activeSection;
 }

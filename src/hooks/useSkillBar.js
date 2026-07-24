@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useRef, useCallback } from 'react';
 import PHYSICS from '../config/physics';
 
 const prefersReducedMotion = () =>
@@ -34,8 +34,10 @@ export function useSkillBar(targetLevel, delay = 0) {
 
     // Animate to target with delay
     setTimeout(() => {
-      el.style.transition = `width ${duration}ms ${easing}`;
-      el.style.width = `${targetLevel}%`;
+      if (el) {
+        el.style.transition = `width ${duration}ms ${easing}`;
+        el.style.width = `${targetLevel}%`;
+      }
     }, effectiveDelay);
   }, [targetLevel, delay]);
 
