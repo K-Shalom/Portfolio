@@ -1,39 +1,46 @@
 import { useState, useCallback } from 'react';
 import { useScrollTrigger } from '../hooks/useScrollTrigger';
 import { useAntigravity } from '../hooks/useAntigravity';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import LinkedInIcon from '@mui/icons-material/LinkedIn';
+import InstagramIcon from '@mui/icons-material/Instagram';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import MailOutlineIcon from '@mui/icons-material/MailOutline';
+import SendIcon from '@mui/icons-material/Send';
+import LaunchIcon from '@mui/icons-material/Launch';
 
 const SOCIALS = [
   {
     label: 'GitHub',
-    icon: '⌥',
+    icon: <GitHubIcon style={{ fontSize: '1.2rem' }} />,
     href: 'https://github.com/K-Shalom',
     desc: 'K-Shalom',
     color: 'var(--accent-primary)',
   },
   {
     label: 'LinkedIn',
-    icon: '◈',
-    href: 'https://www.linkedin.com/in/shalom-kubwimbabazi-aa783b3b1/',
+    icon: <LinkedInIcon style={{ fontSize: '1.2rem' }} />,
+    href: 'https://www.linkedin.com/in/shalom-kubwimbabazi/',
     desc: 'shalom-kubwimbabazi',
     color: 'var(--accent-secondary)',
   },
   {
     label: 'Instagram',
-    icon: '◉',
+    icon: <InstagramIcon style={{ fontSize: '1.2rem' }} />,
     href: 'https://www.instagram.com/k__shalom/',
     desc: 'k__shalom',
     color: 'var(--accent-primary)',
   },
   {
     label: 'WhatsApp',
-    icon: '⬡',
+    icon: <WhatsAppIcon style={{ fontSize: '1.2rem' }} />,
     href: 'https://wa.me/250791293634',
     desc: '+250 791 293 634',
     color: 'var(--accent-secondary)',
   },
   {
     label: 'Email',
-    icon: '◆',
+    icon: <MailOutlineIcon style={{ fontSize: '1.2rem' }} />,
     href: 'mailto:shalomkubwimbabazi@gmail.com',
     desc: 'shalomkubwimbabazi@gmail.com',
     color: 'var(--accent-primary)',
@@ -47,22 +54,34 @@ export default function Contact() {
   const [loading, setLoading] = useState(false);
 
   const { ref: titleRef, activate: activateTitle } = useAntigravity(0);
-  const titleTrigger = useScrollTrigger(
+  const titleTriggerRef = useScrollTrigger(
     useCallback(() => activateTitle(), [activateTitle]),
     null, { threshold: 0.1 }
   );
+  const setTitleElementRef = useCallback((el) => {
+    titleRef.current = el;
+    titleTriggerRef.current = el;
+  }, [titleRef, titleTriggerRef]);
 
   const { ref: formRef, activate: activateForm } = useAntigravity(150);
-  const formTrigger = useScrollTrigger(
+  const formTriggerRef = useScrollTrigger(
     useCallback(() => activateForm(), [activateForm]),
     null, { threshold: 0.1 }
   );
+  const setFormElementRef = useCallback((el) => {
+    formRef.current = el;
+    formTriggerRef.current = el;
+  }, [formRef, formTriggerRef]);
 
   const { ref: socialRef, activate: activateSocial } = useAntigravity(250);
-  const socialTrigger = useScrollTrigger(
+  const socialTriggerRef = useScrollTrigger(
     useCallback(() => activateSocial(), [activateSocial]),
     null, { threshold: 0.1 }
   );
+  const setSocialElementRef = useCallback((el) => {
+    socialRef.current = el;
+    socialTriggerRef.current = el;
+  }, [socialRef, socialTriggerRef]);
 
   const validate = () => {
     const newErrors = {};
@@ -84,40 +103,59 @@ export default function Contact() {
     // Read the Access Key dynamically from environment variables
     const web3FormsKey = import.meta.env.VITE_WEB3FORMS_KEY;
 
-    if (!web3FormsKey) {
-      console.error("Missing VITE_WEB3FORMS_KEY environment variable.");
-      setErrors({ general: 'Configuration error. Missing mail API keys.' });
-      setLoading(false);
-      return;
-    }
-    
-    const formData = new FormData();
-    formData.append("access_key", web3FormsKey);
-    formData.append("name", form.name);
-    formData.append("email", form.email);
-    formData.append("subject", form.subject);
-    formData.append("message", form.message);
+    if (web3FormsKey) {
+      const formData = new FormData();
+      formData.append("access_key", web3FormsKey);
+      formData.append("name", form.name);
+      formData.append("email", form.email);
+      formData.append("subject", form.subject);
+      formData.append("message", form.message);
 
-    try {
-      const response = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const response = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          body: formData,
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to send message');
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || 'Failed to send message');
+        }
+
+        setSent(true);
+        setTimeout(() => setSent(false), 4000);
+        setForm({ name: '', email: '', subject: '', message: '' });
+      } catch (error) {
+        console.error('Error sending message:', error);
+        setErrors({ general: 'Failed to send message. Please try again later.' });
+      } finally {
+        setLoading(false);
       }
+    } else {
+      // Send via server.js API route
+      try {
+        const response = await fetch('/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form),
+        });
 
-      setSent(true);
-      setTimeout(() => setSent(false), 4000);
-      setForm({ name: '', email: '', subject: '', message: '' });
-    } catch (error) {
-      console.error('Error sending message:', error);
-      setErrors({ general: 'Failed to send message. Please try again later.' });
-    } finally {
-      setLoading(false);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to send message');
+        }
+
+        setSent(true);
+        setTimeout(() => setSent(false), 4000);
+        setForm({ name: '', email: '', subject: '', message: '' });
+      } catch (error) {
+        console.error('Error sending message:', error);
+        setErrors({ general: 'Failed to send message. Please try again later.' });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -129,13 +167,13 @@ export default function Contact() {
 
   const inputStyle = (hasError) => ({
     width: '100%',
-    background: 'rgba(255,255,255,0.03)',
-    border: `0.5px solid ${hasError ? '#ff4d4d' : 'rgba(232,255,0,0.15)'}`,
-    borderRadius: '4px',
+    background: 'var(--bg-surface)',
+    border: `1px solid ${hasError ? '#ff4d4d' : 'var(--border-accent)'}`,
+    borderRadius: '6px',
     padding: '0.75rem 1rem',
     fontFamily: 'var(--font-heading)',
     fontSize: '0.88rem',
-    color: 'var(--text-primary)',
+    color: 'var(--text-heading)',
     outline: 'none',
     transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
   });
@@ -153,7 +191,7 @@ export default function Contact() {
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '1100px' }}>
         {/* Header */}
         <div
-          ref={(el) => { titleRef.current = el; titleTrigger.current = el; }}
+          ref={setTitleElementRef}
           style={{ opacity: 0, transform: 'translateY(40px)', marginBottom: '4rem' }}
         >
           <p className="section-label" style={{ marginBottom: '0.75rem' }}>// 06. Contact</p>
@@ -169,7 +207,7 @@ export default function Contact() {
         <div className="grid gap-8 grid-cols-1 sm:grid-cols-2">
           {/* Form */}
           <div
-            ref={(el) => { formRef.current = el; formTrigger.current = el; }}
+            ref={setFormElementRef}
             style={{ opacity: 0, transform: 'translateY(40px)' }}
           >
             {sent && (
@@ -206,7 +244,7 @@ export default function Contact() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {/* Name */}
                 <div>
-                  <label htmlFor="contact-name" style={{ fontFamily: 'var(--font-code)', fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.1em', display: 'block', marginBottom: '0.4rem' }}>NAME</label>
+                  <label htmlFor="contact-name" style={{ fontFamily: 'var(--font-code)', fontSize: '0.7rem', color: 'var(--text-primary)', letterSpacing: '0.1em', display: 'block', marginBottom: '0.4rem' }}>NAME</label>
                   <input
                     id="contact-name"
                     name="name"
@@ -215,15 +253,15 @@ export default function Contact() {
                     onChange={handleChange}
                     placeholder="Your name"
                     style={inputStyle(errors.name)}
-                    onFocus={(e) => { e.target.style.borderColor = 'rgba(232,255,0,0.4)'; e.target.style.boxShadow = '0 0 12px rgba(232,255,0,0.05)'; }}
-                    onBlur={(e) => { e.target.style.borderColor = errors.name ? '#ff4d4d' : 'rgba(232,255,0,0.15)'; e.target.style.boxShadow = 'none'; }}
+                    onFocus={(e) => { e.target.style.borderColor = 'var(--accent-primary)'; e.target.style.boxShadow = '0 0 12px var(--glow-primary)'; }}
+                    onBlur={(e) => { e.target.style.borderColor = errors.name ? '#ff4d4d' : 'var(--border-accent)'; e.target.style.boxShadow = 'none'; }}
                   />
                   {errors.name && <span style={{ fontFamily: 'var(--font-code)', fontSize: '0.68rem', color: '#ff4d4d', marginTop: '0.25rem', display: 'block' }}>{errors.name}</span>}
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label htmlFor="contact-email" style={{ fontFamily: 'var(--font-code)', fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.1em', display: 'block', marginBottom: '0.4rem' }}>EMAIL</label>
+                  <label htmlFor="contact-email" style={{ fontFamily: 'var(--font-code)', fontSize: '0.7rem', color: 'var(--text-primary)', fontWeight: 600, letterSpacing: '0.1em', display: 'block', marginBottom: '0.4rem' }}>EMAIL</label>
                   <input
                     id="contact-email"
                     name="email"
@@ -232,8 +270,8 @@ export default function Contact() {
                     onChange={handleChange}
                     placeholder="your@email.com"
                     style={inputStyle(errors.email)}
-                    onFocus={(e) => { e.target.style.borderColor = 'rgba(232,255,0,0.4)'; e.target.style.boxShadow = '0 0 12px rgba(232,255,0,0.05)'; }}
-                    onBlur={(e) => { e.target.style.borderColor = errors.email ? '#ff4d4d' : 'rgba(232,255,0,0.15)'; e.target.style.boxShadow = 'none'; }}
+                    onFocus={(e) => { e.target.style.borderColor = 'var(--accent-primary)'; e.target.style.boxShadow = '0 0 12px var(--glow-primary)'; }}
+                    onBlur={(e) => { e.target.style.borderColor = errors.email ? '#ff4d4d' : 'var(--border-accent)'; e.target.style.boxShadow = 'none'; }}
                   />
                   {errors.email && <span style={{ fontFamily: 'var(--font-code)', fontSize: '0.68rem', color: '#ff4d4d', marginTop: '0.25rem', display: 'block' }}>{errors.email}</span>}
                 </div>
@@ -241,7 +279,7 @@ export default function Contact() {
 
               {/* Subject */}
               <div>
-                <label htmlFor="contact-subject" style={{ fontFamily: 'var(--font-code)', fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.1em', display: 'block', marginBottom: '0.4rem' }}>SUBJECT</label>
+                <label htmlFor="contact-subject" style={{ fontFamily: 'var(--font-code)', fontSize: '0.7rem', color: 'var(--text-primary)', fontWeight: 600, letterSpacing: '0.1em', display: 'block', marginBottom: '0.4rem' }}>SUBJECT</label>
                 <input
                   id="contact-subject"
                   name="subject"
@@ -250,15 +288,15 @@ export default function Contact() {
                   onChange={handleChange}
                   placeholder="What's this about?"
                   style={inputStyle(errors.subject)}
-                  onFocus={(e) => { e.target.style.borderColor = 'rgba(232,255,0,0.4)'; e.target.style.boxShadow = '0 0 12px rgba(232,255,0,0.05)'; }}
-                  onBlur={(e) => { e.target.style.borderColor = errors.subject ? '#ff4d4d' : 'rgba(232,255,0,0.15)'; e.target.style.boxShadow = 'none'; }}
+                  onFocus={(e) => { e.target.style.borderColor = 'var(--accent-primary)'; e.target.style.boxShadow = '0 0 12px var(--glow-primary)'; }}
+                  onBlur={(e) => { e.target.style.borderColor = errors.subject ? '#ff4d4d' : 'var(--border-accent)'; e.target.style.boxShadow = 'none'; }}
                 />
                 {errors.subject && <span style={{ fontFamily: 'var(--font-code)', fontSize: '0.68rem', color: '#ff4d4d', marginTop: '0.25rem', display: 'block' }}>{errors.subject}</span>}
               </div>
 
               {/* Message */}
               <div className="sm:col-span-2">
-                <label htmlFor="contact-message" style={{ fontFamily: 'var(--font-code)', fontSize: '0.7rem', color: 'var(--text-muted)', letterSpacing: '0.1em', display: 'block', marginBottom: '0.4rem' }}>MESSAGE</label>
+                <label htmlFor="contact-message" style={{ fontFamily: 'var(--font-code)', fontSize: '0.7rem', color: 'var(--text-primary)', fontWeight: 600, letterSpacing: '0.1em', display: 'block', marginBottom: '0.4rem' }}>MESSAGE</label>
                 <textarea
                   id="contact-message"
                   name="message"
@@ -267,8 +305,8 @@ export default function Contact() {
                   onChange={handleChange}
                   placeholder="Your message here..."
                   style={{ ...inputStyle(errors.message), resize: 'vertical', minHeight: '140px' }}
-                  onFocus={(e) => { e.target.style.borderColor = 'rgba(232,255,0,0.4)'; e.target.style.boxShadow = '0 0 12px rgba(232,255,0,0.05)'; }}
-                  onBlur={(e) => { e.target.style.borderColor = errors.message ? '#ff4d4d' : 'rgba(232,255,0,0.15)'; e.target.style.boxShadow = 'none'; }}
+                  onFocus={(e) => { e.target.style.borderColor = 'var(--accent-primary)'; e.target.style.boxShadow = '0 0 12px var(--glow-primary)'; }}
+                  onBlur={(e) => { e.target.style.borderColor = errors.message ? '#ff4d4d' : 'var(--border-accent)'; e.target.style.boxShadow = 'none'; }}
                 />
                 {errors.message && <span style={{ fontFamily: 'var(--font-code)', fontSize: '0.68rem', color: '#ff4d4d', marginTop: '0.25rem', display: 'block' }}>{errors.message}</span>}
               </div>
@@ -276,17 +314,17 @@ export default function Contact() {
               <button 
                 type="submit" 
                 className="btn-primary w-full sm:w-auto" 
-                style={{ alignSelf: 'flex-start' }}
+                style={{ alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
                 disabled={loading}
               >
-                ◆ {loading ? 'Sending...' : 'Send Message'}
+                <SendIcon style={{ fontSize: '1rem' }} /> {loading ? 'Sending...' : 'Send Message'}
               </button>
             </form>
           </div>
 
           {/* Social Matrix */}
           <div
-            ref={(el) => { socialRef.current = el; socialTrigger.current = el; }}
+            ref={setSocialElementRef}
             style={{ opacity: 0, transform: 'translateY(40px)', display: 'flex', flexDirection: 'column', gap: '1rem' }}
           >
             <div style={{ marginBottom: '0.5rem' }}>
@@ -317,12 +355,14 @@ export default function Contact() {
                   transition: 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)',
                 }}
               >
-                <span style={{ fontSize: '1.2rem', color: social.color, minWidth: '24px', textAlign: 'center' }}>{social.icon}</span>
+                <span style={{ color: social.color, minWidth: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{social.icon}</span>
                 <div>
                   <div style={{ fontFamily: 'var(--font-heading)', fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.15rem' }}>{social.label}</div>
                   <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.68rem', color: 'var(--text-muted)' }}>{social.desc}</div>
                 </div>
-                <span style={{ marginLeft: 'auto', color: 'var(--text-muted)', fontSize: '0.8rem' }}>↗</span>
+                <span style={{ marginLeft: 'auto', color: 'var(--text-muted)', display: 'flex', alignItems: 'center' }}>
+                  <LaunchIcon style={{ fontSize: '0.85rem' }} />
+                </span>
               </a>
             ))}
           </div>
