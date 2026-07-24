@@ -28,4 +28,4 @@ dist-ssr
 .env
 data_store.json
 metadata.json
-bun.lock
+bun.lockpackage-lock.json
