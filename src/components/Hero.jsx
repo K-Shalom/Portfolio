@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useFloatLoop } from '../hooks/useFloatLoop';
 import PHYSICS from '../config/physics';
 import heroAsset from '../assets/hero.png';
+import TextScramble from './TextScramble';
 import CodeIcon from '@mui/icons-material/Code';
 import StorageIcon from '@mui/icons-material/Storage';
 import SchoolIcon from '@mui/icons-material/School';
@@ -18,42 +19,6 @@ const prefersReducedMotion = () =>
   typeof window !== 'undefined' &&
   window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-function AnimatedLetters({ text, baseDelay = 300, style = {} }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setVisible(true), 200);
-    return () => clearTimeout(t);
-  }, []);
-
-  if (prefersReducedMotion()) {
-    return <span style={style}>{text}</span>;
-  }
-
-  return (
-    <span aria-label={text} style={{ display: 'block', ...style }}>
-      {text.split('').map((char, i) => (
-        <span
-          key={i}
-          aria-hidden="true"
-          style={{
-            display: 'inline-block',
-            opacity: visible ? 1 : 0,
-            transform: visible ? 'translateY(0)' : 'translateY(-50px)',
-            transition: `
-              opacity ${PHYSICS.letterDrop.duration}ms cubic-bezier(0.34,1.56,0.64,1) ${baseDelay + i * PHYSICS.letterDrop.staggerMs}ms,
-              transform ${PHYSICS.letterDrop.duration}ms cubic-bezier(0.34,1.56,0.64,1) ${baseDelay + i * PHYSICS.letterDrop.staggerMs}ms
-            `,
-            whiteSpace: char === ' ' ? 'pre' : 'normal',
-          }}
-        >
-          {char}
-        </span>
-      ))}
-    </span>
-  );
-}
-
 function RotatingSubtitle() {
   const [index, setIndex] = useState(0);
   const [fading, setFading] = useState(false);
@@ -69,7 +34,7 @@ function RotatingSubtitle() {
       }, fadeDuration);
     }, intervalMs);
     return () => clearInterval(interval);
-  }, []);
+  }, [fadeDuration, intervalMs]);
 
   return (
     <span
@@ -115,22 +80,12 @@ export default function Hero() {
         background: 'var(--bg-primary)',
       }}
     >
-      {/* Grid overlay */}
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none',
-        backgroundImage: `
-          linear-gradient(rgba(232,255,0,0.025) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(232,255,0,0.025) 1px, transparent 1px)
-        `,
-        backgroundSize: '64px 64px',
-      }} />
-
       {/* Radial glow center */}
       <div style={{
         position: 'absolute', top: '40%', left: '30%',
         transform: 'translate(-50%,-50%)',
         width: '700px', height: '700px',
-        background: 'radial-gradient(circle, rgba(232,255,0,0.05) 0%, transparent 65%)',
+        background: 'radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 65%)',
         pointerEvents: 'none',
       }} />
 
@@ -152,15 +107,15 @@ export default function Hero() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <span style={{
               width: '8px', height: '8px', borderRadius: '50%',
-              background: 'var(--accent-secondary)',
-              boxShadow: '0 0 14px var(--accent-secondary)',
+              background: 'var(--accent-teal)',
+              boxShadow: '0 0 14px var(--accent-teal)',
               flexShrink: 0,
               animation: 'heroPulse 2s ease-in-out infinite',
             }} />
             <span style={{
               fontFamily: 'var(--font-code)',
               fontSize: '0.7rem',
-              color: 'var(--accent-secondary)',
+              color: 'var(--accent-teal)',
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
             }}>
@@ -179,23 +134,20 @@ export default function Hero() {
           </span>
 
           {/* Name */}
-          <div style={{ lineHeight: 1.0 }}>
-            <AnimatedLetters
+          <div style={{ lineHeight: 1.0, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.8rem' }}>
+            <TextScramble
               text="Shalom K."
-              baseDelay={300}
+              autoStart={true}
               style={{
                 fontFamily: 'var(--font-heading)',
-                fontSize: 'clamp(3.5rem, 8vw, 6.5rem)',
+                fontSize: 'clamp(3.2rem, 7vw, 6rem)',
                 fontWeight: 700,
                 letterSpacing: '-0.03em',
-                background: 'linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%)',
                 color: 'var(--accent-primary)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'currentcolor',
-                textShadow: '0 0 20px rgba(232,255,0,0.18)',
+                textShadow: '0 0 25px var(--glow-primary)',
               }}
             />
+            
           </div>
 
           {/* Role label + rotating subtitle */}
@@ -210,7 +162,7 @@ export default function Hero() {
           <p style={{
             fontFamily: 'var(--font-heading)',
             fontSize: 'clamp(0.875rem, 1.8vw, 1rem)',
-            color: 'var(--text-muted)',
+            color: 'var(--text-primary)',
             lineHeight: 1.8,
             maxWidth: '560px',
             marginTop: '1rem',
@@ -242,7 +194,7 @@ export default function Hero() {
                 gap: '0.5rem',
                 padding: '0.7rem 1.6rem',
                 background: 'var(--accent-primary)',
-                color: '#07090f',
+                color: '#FFFFFF',
                 fontFamily: 'var(--font-heading)',
                 fontWeight: 700,
                 fontSize: '0.875rem',
@@ -254,7 +206,7 @@ export default function Hero() {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 10px 32px rgba(232,255,0,0.4)';
+                e.currentTarget.style.boxShadow = '0 10px 32px rgba(59, 130, 246, 0.4)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
@@ -273,11 +225,11 @@ export default function Hero() {
                 gap: '0.5rem',
                 padding: '0.7rem 1.6rem',
                 background: 'transparent',
-                color: 'var(--accent-primary)',
+                color: 'var(--accent-secondary)',
                 fontFamily: 'var(--font-heading)',
                 fontWeight: 600,
                 fontSize: '0.875rem',
-                border: '1px solid rgba(232,255,0,0.4)',
+                border: '1px solid rgba(96, 165, 250, 0.4)',
                 borderRadius: '4px',
                 cursor: 'pointer',
                 letterSpacing: '0.02em',
@@ -285,8 +237,8 @@ export default function Hero() {
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.background = 'rgba(232,255,0,0.08)';
-                e.currentTarget.style.boxShadow = '0 10px 30px rgba(232,255,0,0.12)';
+                e.currentTarget.style.background = 'rgba(96, 165, 250, 0.08)';
+                e.currentTarget.style.boxShadow = '0 10px 30px rgba(96, 165, 250, 0.12)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
@@ -314,8 +266,8 @@ export default function Hero() {
                 fontSize: '0.68rem',
                 padding: '0.18rem 0.55rem',
                 borderRadius: '2px',
-                background: 'rgba(232,255,0,0.06)',
-                border: '0.5px solid rgba(232,255,0,0.2)',
+                background: 'var(--glow-secondary)',
+                border: '0.5px solid var(--border-accent)',
                 color: 'var(--accent-primary)',
                 letterSpacing: '0.04em',
               }}>{tech}</span>
@@ -352,7 +304,7 @@ export default function Hero() {
               borderRadius: '50%',
               overflow: 'hidden',
               background: 'rgba(14,17,23,0.05)',
-              border: '0.5px solid rgba(232,255,0,0.18)',
+              border: '0.5px solid var(--border-accent)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -377,7 +329,7 @@ export default function Hero() {
               position: 'absolute',
               width: '310px', height: '310px',
               borderRadius: '50%',
-              border: '0.5px dashed rgba(232,255,0,0.08)',
+              border: '0.5px dashed var(--border-accent)',
               animation: 'heroSpin 20s linear infinite',
             }} />
 
@@ -386,8 +338,8 @@ export default function Hero() {
               position: 'absolute',
               width: '32px', height: '32px',
               borderRadius: '50%',
-              background: 'rgba(232,255,0,0.1)',
-              border: '1px solid rgba(232,255,0,0.3)',
+              background: 'var(--glow-secondary)',
+              border: '1px solid var(--border-accent)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -402,7 +354,7 @@ export default function Hero() {
               position: 'absolute',
               width: '350px', height: '350px',
               borderRadius: '50%',
-              border: '0.5px dotted rgba(232,255,0,0.06)',
+              border: '0.5px dotted var(--border-accent)',
               animation: 'heroSpin 28s linear infinite reverse',
             }} />
 
@@ -411,8 +363,8 @@ export default function Hero() {
               position: 'absolute',
               width: '32px', height: '32px',
               borderRadius: '50%',
-              background: 'rgba(232,255,0,0.08)',
-              border: '1px solid rgba(232,255,0,0.25)',
+              background: 'var(--glow-secondary)',
+              border: '1px solid var(--border-accent)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -427,7 +379,7 @@ export default function Hero() {
               position: 'absolute',
               width: '390px', height: '390px',
               borderRadius: '50%',
-              border: '0.5px dashed rgba(232,255,0,0.05)',
+              border: '0.5px dashed var(--border-accent)',
               animation: 'heroSpin 35s linear infinite',
             }} />
 
@@ -436,8 +388,8 @@ export default function Hero() {
               position: 'absolute',
               width: '32px', height: '32px',
               borderRadius: '50%',
-              background: 'rgba(232,255,0,0.08)',
-              border: '1px solid rgba(232,255,0,0.2)',
+              background: 'var(--glow-secondary)',
+              border: '1px solid var(--border-accent)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -452,7 +404,7 @@ export default function Hero() {
               position: 'absolute',
               width: '430px', height: '430px',
               borderRadius: '50%',
-              border: '0.5px dotted rgba(232,255,0,0.04)',
+              border: '0.5px dotted var(--border-accent)',
               animation: 'heroSpin 42s linear infinite reverse',
             }} />
 
@@ -461,8 +413,8 @@ export default function Hero() {
               position: 'absolute',
               width: '32px', height: '32px',
               borderRadius: '50%',
-              background: 'rgba(232,255,0,0.06)',
-              border: '1px solid rgba(232,255,0,0.15)',
+              background: 'var(--glow-secondary)',
+              border: '1px solid var(--border-accent)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -487,13 +439,13 @@ export default function Hero() {
           flexDirection: 'column',
           alignItems: 'center',
           gap: '0.35rem',
-          opacity: ctaVisible ? 0.4 : 0,
+          opacity: ctaVisible ? 0.9 : 0,
           transition: 'opacity 1s ease 1s',
         }}
       >
-        <span style={{ fontFamily: 'var(--font-code)', fontSize: '0.58rem', color: 'var(--text-muted)', letterSpacing: '0.12em' }}>SCROLL</span>
+        <span style={{ fontFamily: 'var(--font-code)', fontSize: '0.62rem', color: 'var(--text-primary)', fontWeight: 600, letterSpacing: '0.14em' }}>SCROLL</span>
         <div style={{
-          width: '1px', height: '36px',
+          width: '2px', height: '36px',
           background: 'linear-gradient(to bottom, var(--accent-primary), transparent)',
           animation: 'heroScrollPulse 2s ease-in-out infinite',
         }} />

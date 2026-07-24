@@ -31,13 +31,9 @@ function SkillBar({ name, level, delay }) {
           style={{
             height: '100%',
             width: '0%',
-            background: level >= 80
-              ? 'linear-gradient(90deg, var(--accent-primary), #b8cc00)'
-              : level >= 70
-              ? 'linear-gradient(90deg, var(--accent-secondary), #00a88a)'
-              : 'linear-gradient(90deg, rgba(232,255,0,0.6), rgba(0,201,167,0.6))',
+            background: 'linear-gradient(90deg, var(--accent-teal), #65d4c2)',
             borderRadius: '2px',
-            boxShadow: `0 0 8px ${level >= 80 ? 'rgba(232,255,0,0.4)' : 'rgba(0,201,167,0.3)'}`,
+            boxShadow: '0 0 8px rgba(79, 184, 168, 0.4)',
             position: 'relative',
           }}
         >
@@ -55,15 +51,20 @@ function SkillBar({ name, level, delay }) {
 }
 
 function SkillGroup({ group, groupIndex }) {
-  const { ref, activate } = useAntigravity(groupIndex * 100);
+  const { ref: antigravRef, activate } = useAntigravity(groupIndex * 100);
   const triggerRef = useScrollTrigger(
     useCallback(() => activate(), [activate]),
     null, { threshold: 0.1 }
   );
 
+  const setGroupRef = useCallback((el) => {
+    antigravRef.current = el;
+    triggerRef.current = el;
+  }, [antigravRef, triggerRef]);
+
   return (
     <div
-      ref={(el) => { ref.current = el; triggerRef.current = el; }}
+      ref={setGroupRef}
       style={{
         opacity: 0,
         transform: 'translateY(40px)',
@@ -100,25 +101,22 @@ function SkillGroup({ group, groupIndex }) {
 
 export default function Skills() {
   const { ref: titleRef, activate: activateTitle } = useAntigravity(0);
-  const titleTrigger = useScrollTrigger(
+  const titleTriggerRef = useScrollTrigger(
     useCallback(() => activateTitle(), [activateTitle]),
     null, { threshold: 0.1 }
   );
 
-  return (
-    <section id="skills" className="section-wrapper" style={{ background: '#080b12', position: 'relative' }}>
-      <div style={{
-        position: 'absolute', inset: 0,
-        backgroundImage: `linear-gradient(rgba(232,255,0,0.02) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(232,255,0,0.02) 1px, transparent 1px)`,
-        backgroundSize: '40px 40px',
-        pointerEvents: 'none',
-      }} />
+  const setTitleRef = useCallback((el) => {
+    titleRef.current = el;
+    titleTriggerRef.current = el;
+  }, [titleRef, titleTriggerRef]);
 
+  return (
+    <section id="skills" className="section-wrapper" style={{ background: 'var(--bg-primary)', position: 'relative' }}>
       <div style={{ position: 'relative', zIndex: 1 }}>
         {/* Header */}
         <div
-          ref={(el) => { titleRef.current = el; titleTrigger.current = el; }}
+          ref={setTitleRef}
           style={{ opacity: 0, transform: 'translateY(40px)', marginBottom: '4rem' }}
         >
           <p className="section-label" style={{ marginBottom: '0.75rem' }}>// 05. Skills</p>

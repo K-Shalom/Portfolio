@@ -1,4 +1,7 @@
-export default function Footer() {
+import SettingsIcon from '@mui/icons-material/Settings';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+
+export default function Footer({ onOpenAdmin }) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -9,8 +12,8 @@ export default function Footer() {
     <footer
       role="contentinfo"
       style={{
-        background: '#050710',
-        borderTop: '0.5px solid rgba(232,255,0,0.08)',
+        background: 'var(--bg-primary)',
+        borderTop: '0.5px solid var(--border-accent)',
         padding: '2.5rem 1.5rem',
         position: 'relative',
         overflow: 'hidden',
@@ -34,7 +37,7 @@ export default function Footer() {
             fontSize: '1.2rem',
             color: 'var(--accent-primary)',
             fontWeight: 700,
-            textShadow: '0 0 20px rgba(232,255,0,0.4)',
+            textShadow: '0 0 20px var(--glow-primary)',
           }}>SK.</span>
           <span style={{
             fontFamily: 'var(--font-heading)',
@@ -49,8 +52,8 @@ export default function Footer() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{
             width: '6px', height: '6px', borderRadius: '50%',
-            background: 'var(--accent-secondary)',
-            boxShadow: '0 0 10px var(--accent-secondary)',
+            background: 'var(--accent-teal)',
+            boxShadow: '0 0 10px var(--accent-teal)',
             animation: 'footerPulse 2.5s ease-in-out infinite',
             display: 'inline-block',
           }} />
@@ -59,17 +62,41 @@ export default function Footer() {
           </span>
         </div>
 
-        <div className="accent-divider" style={{ width: '120px' }} />
-
-        {/* Copyright */}
-        <p style={{
-          fontFamily: 'var(--font-code)',
-          fontSize: '0.68rem',
-          color: 'var(--text-muted)',
-          letterSpacing: '0.05em',
-        }}>
-          © {year} Shalom Kubwimbabazi. Built with React + Physics ⚡
-        </p>
+        {/* Copyright & Subtle Admin Access */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}>
+          <p style={{
+            fontFamily: 'var(--font-code)',
+            fontSize: '0.68rem',
+            color: 'var(--text-muted)',
+            letterSpacing: '0.05em',
+            margin: 0,
+          }}>
+            © {year} Shalom Kubwimbabazi. Built with React + Spring
+          </p>
+          {onOpenAdmin && (
+            <button
+              onClick={onOpenAdmin}
+              aria-label="CMS Admin"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                padding: '2px 4px',
+                margin: 0,
+                color: 'var(--text-muted)',
+                opacity: 0.3,
+                cursor: 'pointer',
+                transition: 'opacity 0.2s ease',
+                display: 'inline-flex',
+                alignItems: 'center',
+              }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.9')}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.3')}
+              title="Admin CMS"
+            >
+              <SettingsIcon style={{ fontSize: '0.85rem' }} />
+            </button>
+          )}
+        </div>
 
         {/* Back to top */}
         <button
@@ -77,7 +104,7 @@ export default function Footer() {
           aria-label="Scroll to top"
           style={{
             background: 'none',
-            border: '0.5px solid rgba(232,255,0,0.2)',
+            border: '0.5px solid var(--border-accent)',
             borderRadius: '4px',
             padding: '0.5rem 1.25rem',
             cursor: 'pointer',
@@ -87,29 +114,29 @@ export default function Footer() {
             letterSpacing: '0.1em',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.4rem',
+            gap: '0.3rem',
             transition: 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)',
             marginTop: '0.25rem',
           }}
           onMouseEnter={(e) => {
             e.currentTarget.style.transform = 'translateY(-3px)';
-            e.currentTarget.style.boxShadow = '0 8px 20px rgba(232,255,0,0.1)';
-            e.currentTarget.style.borderColor = 'rgba(232,255,0,0.5)';
+            e.currentTarget.style.boxShadow = '0 8px 20px var(--glow-primary)';
+            e.currentTarget.style.borderColor = 'var(--accent-secondary)';
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'translateY(0)';
             e.currentTarget.style.boxShadow = 'none';
-            e.currentTarget.style.borderColor = 'rgba(232,255,0,0.2)';
+            e.currentTarget.style.borderColor = 'var(--border-accent)';
           }}
         >
-          ↑ BACK TO TOP
+          <KeyboardArrowUpIcon style={{ fontSize: '1rem' }} /> BACK TO TOP
         </button>
       </div>
 
       <style>{`
         @keyframes footerPulse {
-          0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--accent-secondary); }
-          50% { opacity: 0.4; box-shadow: 0 0 4px var(--accent-secondary); }
+          0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--accent-teal); }
+          50% { opacity: 0.4; box-shadow: 0 0 4px var(--accent-teal); }
         }
       `}</style>
     </footer>
