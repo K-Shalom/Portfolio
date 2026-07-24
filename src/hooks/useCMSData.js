@@ -4,6 +4,9 @@ import { initialArticles } from '../data/articles';
 import { initialCertificates } from '../data/certificates';
 import { initialEvents } from '../data/events';
 
+// Dynamic API Base URL from environment variable
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+
 export function useCMSData() {
   const [projects, setProjects] = useState(() => {
     const saved = localStorage.getItem('sk_projects');
@@ -31,10 +34,10 @@ export function useCMSData() {
   const refreshAll = useCallback(async () => {
     try {
       const [pRes, aRes, cRes, eRes] = await Promise.all([
-        fetch('/api/projects').then((r) => (r.ok ? r.json() : null)),
-        fetch('/api/articles').then((r) => (r.ok ? r.json() : null)),
-        fetch('/api/certificates').then((r) => (r.ok ? r.json() : null)),
-        fetch('/api/events').then((r) => (r.ok ? r.json() : null)),
+        fetch(`${API_BASE}/api/projects`).then((r) => (r.ok ? r.json() : null)),
+        fetch(`${API_BASE}/api/articles`).then((r) => (r.ok ? r.json() : null)),
+        fetch(`${API_BASE}/api/certificates`).then((r) => (r.ok ? r.json() : null)),
+        fetch(`${API_BASE}/api/events`).then((r) => (r.ok ? r.json() : null)),
       ]);
 
       if (pRes) {
@@ -65,10 +68,10 @@ export function useCMSData() {
     const load = async () => {
       try {
         const [pRes, aRes, cRes, eRes] = await Promise.all([
-          fetch('/api/projects').then((r) => (r.ok ? r.json() : null)),
-          fetch('/api/articles').then((r) => (r.ok ? r.json() : null)),
-          fetch('/api/certificates').then((r) => (r.ok ? r.json() : null)),
-          fetch('/api/events').then((r) => (r.ok ? r.json() : null)),
+          fetch(`${API_BASE}/api/projects`).then((r) => (r.ok ? r.json() : null)),
+          fetch(`${API_BASE}/api/articles`).then((r) => (r.ok ? r.json() : null)),
+          fetch(`${API_BASE}/api/certificates`).then((r) => (r.ok ? r.json() : null)),
+          fetch(`${API_BASE}/api/events`).then((r) => (r.ok ? r.json() : null)),
         ]);
 
         if (isMounted) {
@@ -102,7 +105,7 @@ export function useCMSData() {
   // CRUD for Projects
   const addProject = async (projectData) => {
     try {
-      const res = await fetch('/api/projects', {
+      const res = await fetch(`${API_BASE}/api/projects`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(projectData),
@@ -117,7 +120,6 @@ export function useCMSData() {
     } catch (err) {
       console.error('Error adding project:', err);
     }
-    // Local fallback
     const fallback = { id: `proj-${Date.now()}`, ...projectData };
     const updated = [fallback, ...projects];
     setProjects(updated);
@@ -127,7 +129,7 @@ export function useCMSData() {
 
   const updateProject = async (id, projectData) => {
     try {
-      const res = await fetch(`/api/projects/${id}`, {
+      const res = await fetch(`${API_BASE}/api/projects/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(projectData),
@@ -149,7 +151,7 @@ export function useCMSData() {
 
   const deleteProject = async (id) => {
     try {
-      await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE}/api/projects/${id}`, { method: 'DELETE' });
     } catch (err) {
       console.error('Error deleting project:', err);
     }
@@ -161,7 +163,7 @@ export function useCMSData() {
   // CRUD for Articles
   const addArticle = async (articleData) => {
     try {
-      const res = await fetch('/api/articles', {
+      const res = await fetch(`${API_BASE}/api/articles`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(articleData),
@@ -185,7 +187,7 @@ export function useCMSData() {
 
   const updateArticle = async (id, articleData) => {
     try {
-      const res = await fetch(`/api/articles/${id}`, {
+      const res = await fetch(`${API_BASE}/api/articles/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(articleData),
@@ -207,7 +209,7 @@ export function useCMSData() {
 
   const deleteArticle = async (id) => {
     try {
-      await fetch(`/api/articles/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE}/api/articles/${id}`, { method: 'DELETE' });
     } catch (err) {
       console.error('Error deleting article:', err);
     }
@@ -219,7 +221,7 @@ export function useCMSData() {
   // CRUD for Certificates
   const addCertificate = async (certData) => {
     try {
-      const res = await fetch('/api/certificates', {
+      const res = await fetch(`${API_BASE}/api/certificates`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(certData),
@@ -243,7 +245,7 @@ export function useCMSData() {
 
   const updateCertificate = async (id, certData) => {
     try {
-      const res = await fetch(`/api/certificates/${id}`, {
+      const res = await fetch(`${API_BASE}/api/certificates/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(certData),
@@ -265,7 +267,7 @@ export function useCMSData() {
 
   const deleteCertificate = async (id) => {
     try {
-      await fetch(`/api/certificates/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE}/api/certificates/${id}`, { method: 'DELETE' });
     } catch (err) {
       console.error('Error deleting certificate:', err);
     }
@@ -277,7 +279,7 @@ export function useCMSData() {
   // CRUD for Events
   const addEvent = async (eventData) => {
     try {
-      const res = await fetch('/api/events', {
+      const res = await fetch(`${API_BASE}/api/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(eventData),
@@ -301,7 +303,7 @@ export function useCMSData() {
 
   const updateEvent = async (id, eventData) => {
     try {
-      const res = await fetch(`/api/events/${id}`, {
+      const res = await fetch(`${API_BASE}/api/events/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(eventData),
@@ -323,7 +325,7 @@ export function useCMSData() {
 
   const deleteEvent = async (id) => {
     try {
-      await fetch(`/api/events/${id}`, { method: 'DELETE' });
+      await fetch(`${API_BASE}/api/events/${id}`, { method: 'DELETE' });
     } catch (err) {
       console.error('Error deleting event:', err);
     }

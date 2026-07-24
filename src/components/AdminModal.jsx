@@ -1,5 +1,8 @@
 import { useState } from 'react';
 
+// Dynamic API Base URL from environment variable
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+
 export default function AdminModal({ isOpen, onClose, cms }) {
   const [authenticated, setAuthenticated] = useState(false);
   const [passcode, setPasscode] = useState('');
@@ -76,7 +79,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
     setRequestMsg('');
     setVerifyError('');
     try {
-      const res = await fetch('/api/request-admin-code', { method: 'POST' });
+      const res = await fetch(`${API_BASE}/api/request-admin-code`, { method: 'POST' });
       const data = await res.json();
       setSendingCode(false);
       setCodeRequested(true);
@@ -100,7 +103,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
     if (!passcode) return;
     setVerifyError('');
     try {
-      const res = await fetch('/api/verify-admin-code', {
+      const res = await fetch(`${API_BASE}/api/verify-admin-code`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code: passcode }),
@@ -672,24 +675,24 @@ export default function AdminModal({ isOpen, onClose, cms }) {
             {activeTab === 'certificates' && (
               <div>
                 <form onSubmit={handleAddCert} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '6px', border: '0.5px solid var(--border-accent)', marginBottom: '1.5rem' }}>
-                  <h4 style={{ fontFamily: 'var(--font-code)', fontSize: '0.8rem', color: 'var(--accent-secondary)', marginBottom: '1rem' }}>+ ADD CERTIFICATE / ACCREDITATION</h4>
+                  <h4 style={{ fontFamily: 'var(--font-code)', fontSize: '0.8rem', color: 'var(--accent-primary)', marginBottom: '1rem' }}>+ ADD CERTIFICATE</h4>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <input type="text" placeholder="Certificate Title *" value={certForm.title} onChange={(e) => setCertForm({ ...certForm, title: e.target.value })} style={inputStyle} required />
-                    <input type="text" placeholder="Issuing Institution (e.g. Rwanda Polytechnic)" value={certForm.issuer} onChange={(e) => setCertForm({ ...certForm, issuer: e.target.value })} style={inputStyle} />
+                    <input type="text" placeholder="Issuer (e.g. Coursera, Oracle)" value={certForm.issuer} onChange={(e) => setCertForm({ ...certForm, issuer: e.target.value })} style={inputStyle} />
                   </div>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <input type="text" placeholder="Issue Date (YYYY-MM)" value={certForm.issueDate} onChange={(e) => setCertForm({ ...certForm, issueDate: e.target.value })} style={inputStyle} />
                     <input type="text" placeholder="Credential ID" value={certForm.credentialId} onChange={(e) => setCertForm({ ...certForm, credentialId: e.target.value })} style={inputStyle} />
-                    <input type="text" placeholder="Credential URL" value={certForm.credentialUrl} onChange={(e) => setCertForm({ ...certForm, credentialUrl: e.target.value })} style={inputStyle} />
                   </div>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <input type="text" placeholder="Cover Image URL" value={certForm.coverImage} onChange={(e) => setCertForm({ ...certForm, coverImage: e.target.value })} style={inputStyle} />
-                    <input type="text" placeholder="Skills (e.g. Java, IoT, MySQL)" value={certForm.skills} onChange={(e) => setCertForm({ ...certForm, skills: e.target.value })} style={inputStyle} />
+                    <input type="text" placeholder="Credential Verification URL" value={certForm.credentialUrl} onChange={(e) => setCertForm({ ...certForm, credentialUrl: e.target.value })} style={inputStyle} />
+                    <input type="text" placeholder="Skills (comma separated)" value={certForm.skills} onChange={(e) => setCertForm({ ...certForm, skills: e.target.value })} style={inputStyle} />
                   </div>
 
-                  <button type="submit" className="btn-primary" style={{ background: 'var(--accent-secondary)', color: '#07090f', width: '100%' }}>+ Save Certificate</button>
+                  <button type="submit" className="btn-primary" style={{ width: '100%' }}>+ Add Certificate</button>
                 </form>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -698,24 +701,24 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                       {editingCertId === c.id ? (
                         /* EDIT CERTIFICATE FORM */
                         <form onSubmit={(e) => handleUpdateCert(c.id, e)}>
-                          <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.75rem', color: 'var(--accent-secondary)', marginBottom: '0.75rem' }}>✏️ Editing Certificate: {c.title}</div>
+                          <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.75rem', color: 'var(--accent-primary)', marginBottom: '0.75rem' }}>✏️ Editing Certificate: {c.title}</div>
                           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                             <input type="text" placeholder="Title" value={editCertForm.title || ''} onChange={(e) => setEditCertForm({ ...editCertForm, title: e.target.value })} style={inputStyle} required />
                             <input type="text" placeholder="Issuer" value={editCertForm.issuer || ''} onChange={(e) => setEditCertForm({ ...editCertForm, issuer: e.target.value })} style={inputStyle} />
                           </div>
                           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                            <input type="text" placeholder="Issue Date" value={editCertForm.issueDate || ''} onChange={(e) => setEditCertForm({ ...editCertForm, issueDate: e.target.value })} style={inputStyle} />
                             <input type="text" placeholder="Credential ID" value={editCertForm.credentialId || ''} onChange={(e) => setEditCertForm({ ...editCertForm, credentialId: e.target.value })} style={inputStyle} />
-                            <input type="text" placeholder="Credential URL" value={editCertForm.credentialUrl || ''} onChange={(e) => setEditCertForm({ ...editCertForm, credentialUrl: e.target.value })} style={inputStyle} />
                           </div>
                           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                            <input type="text" placeholder="Cover Image URL" value={editCertForm.coverImage || ''} onChange={(e) => setEditCertForm({ ...editCertForm, coverImage: e.target.value })} style={inputStyle} />
+                            <input type="text" placeholder="Credential URL" value={editCertForm.credentialUrl || ''} onChange={(e) => setEditCertForm({ ...editCertForm, credentialUrl: e.target.value })} style={inputStyle} />
                             <input type="text" placeholder="Skills (comma separated)" value={editCertForm.skills || ''} onChange={(e) => setEditCertForm({ ...editCertForm, skills: e.target.value })} style={inputStyle} />
                           </div>
                           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                             <button type="button" onClick={() => setEditingCertId(null)} style={{ background: 'transparent', border: '0.5px solid var(--border-accent)', color: 'var(--text-muted)', padding: '0.35rem 0.8rem', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer' }}>
                               Cancel
                             </button>
-                            <button type="submit" className="btn-primary" style={{ padding: '0.35rem 0.8rem', fontSize: '0.75rem', background: 'var(--accent-secondary)', color: '#07090f' }}>
+                            <button type="submit" className="btn-primary" style={{ padding: '0.35rem 0.8rem', fontSize: '0.75rem' }}>
                               💾 Save Changes
                             </button>
                           </div>
@@ -725,10 +728,10 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
                             <div style={{ fontFamily: 'var(--font-heading)', fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>{c.title}</div>
-                            <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.68rem', color: 'var(--text-muted)' }}>{c.issuer} • {c.credentialId}</div>
+                            <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.68rem', color: 'var(--text-muted)' }}>{c.issuer} • {c.issueDate}</div>
                           </div>
                           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                            <button onClick={() => startEditCert(c)} style={{ background: 'rgba(0,201,167,0.1)', border: '0.5px solid rgba(0,201,167,0.3)', color: 'var(--accent-secondary)', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
+                            <button onClick={() => startEditCert(c)} style={{ background: 'rgba(59, 130, 246, 0.12)', border: '0.5px solid var(--border-accent)', color: 'var(--accent-primary)', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
                               ✏️ Edit
                             </button>
                             <button onClick={() => cms.deleteCertificate(c.id)} style={{ background: 'rgba(255,77,77,0.1)', border: '0.5px solid rgba(255,77,77,0.3)', color: '#ff4d4d', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
@@ -747,43 +750,39 @@ export default function AdminModal({ isOpen, onClose, cms }) {
             {activeTab === 'events' && (
               <div>
                 <form onSubmit={handleAddEvent} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '6px', border: '0.5px solid var(--border-accent)', marginBottom: '1.5rem' }}>
-                  <h4 style={{ fontFamily: 'var(--font-code)', fontSize: '0.8rem', color: 'var(--accent-primary)', marginBottom: '1rem' }}>+ LOG ATTENDED EVENT / HACKATHON</h4>
+                  <h4 style={{ fontFamily: 'var(--font-code)', fontSize: '0.8rem', color: 'var(--accent-primary)', marginBottom: '1rem' }}>+ LOG NEW EVENT</h4>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                     <input type="text" placeholder="Event Title *" value={eventForm.title} onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })} style={inputStyle} required />
-                    <input type="text" placeholder="Organization / Venue" value={eventForm.organization} onChange={(e) => setEventForm({ ...eventForm, organization: e.target.value })} style={inputStyle} />
+                    <input type="text" placeholder="Organization / Host" value={eventForm.organization} onChange={(e) => setEventForm({ ...eventForm, organization: e.target.value })} style={inputStyle} />
                   </div>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    <input type="text" placeholder="Location (e.g. Kigali / Huye)" value={eventForm.location} onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })} style={inputStyle} />
-                    <input type="text" placeholder="Role (e.g. Presenter / Winner)" value={eventForm.role} onChange={(e) => setEventForm({ ...eventForm, role: e.target.value })} style={inputStyle} />
+                    <input type="text" placeholder="Location (e.g. Kigali, Rwanda / Remote)" value={eventForm.location} onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })} style={inputStyle} />
+                    <input type="text" placeholder="Your Role (e.g. Speaker, Organizer)" value={eventForm.role} onChange={(e) => setEventForm({ ...eventForm, role: e.target.value })} style={inputStyle} />
                   </div>
 
-                  <input type="text" placeholder="Cover Photo URL" value={eventForm.coverImage} onChange={(e) => setEventForm({ ...eventForm, coverImage: e.target.value })} style={inputStyle} />
                   <textarea rows={2} placeholder="Event Description..." value={eventForm.description} onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} />
-                  <input type="text" placeholder="Highlights (comma separated e.g. 1st Place Award, Biometric Demo)" value={eventForm.highlights} onChange={(e) => setEventForm({ ...eventForm, highlights: e.target.value })} style={inputStyle} />
 
                   <button type="submit" className="btn-primary" style={{ width: '100%' }}>+ Log Event</button>
                 </form>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  {cms.events.map((e) => (
-                    <div key={e.id} style={{ background: 'var(--bg-surface)', padding: '0.85rem 1rem', borderRadius: '4px', border: '0.5px solid var(--border-accent)' }}>
-                      {editingEventId === e.id ? (
+                  {cms.events.map((evt) => (
+                    <div key={evt.id} style={{ background: 'var(--bg-surface)', padding: '0.85rem 1rem', borderRadius: '4px', border: '0.5px solid var(--border-accent)' }}>
+                      {editingEventId === evt.id ? (
                         /* EDIT EVENT FORM */
-                        <form onSubmit={(evt) => handleUpdateEvent(e.id, evt)}>
-                          <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.75rem', color: 'var(--accent-primary)', marginBottom: '0.75rem' }}>✏️ Editing Event: {e.title}</div>
+                        <form onSubmit={(e) => handleUpdateEvent(evt.id, e)}>
+                          <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.75rem', color: 'var(--accent-primary)', marginBottom: '0.75rem' }}>✏️ Editing Event: {evt.title}</div>
                           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                            <input type="text" placeholder="Title" value={editEventForm.title || ''} onChange={(evt) => setEditEventForm({ ...editEventForm, title: evt.target.value })} style={inputStyle} required />
-                            <input type="text" placeholder="Organization" value={editEventForm.organization || ''} onChange={(evt) => setEditEventForm({ ...editEventForm, organization: evt.target.value })} style={inputStyle} />
+                            <input type="text" placeholder="Title" value={editEventForm.title || ''} onChange={(e) => setEditEventForm({ ...editEventForm, title: e.target.value })} style={inputStyle} required />
+                            <input type="text" placeholder="Organization" value={editEventForm.organization || ''} onChange={(e) => setEditEventForm({ ...editEventForm, organization: e.target.value })} style={inputStyle} />
                           </div>
                           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                            <input type="text" placeholder="Location" value={editEventForm.location || ''} onChange={(evt) => setEditEventForm({ ...editEventForm, location: evt.target.value })} style={inputStyle} />
-                            <input type="text" placeholder="Role" value={editEventForm.role || ''} onChange={(evt) => setEditEventForm({ ...editEventForm, role: evt.target.value })} style={inputStyle} />
+                            <input type="text" placeholder="Location" value={editEventForm.location || ''} onChange={(e) => setEditEventForm({ ...editEventForm, location: e.target.value })} style={inputStyle} />
+                            <input type="text" placeholder="Role" value={editEventForm.role || ''} onChange={(e) => setEditEventForm({ ...editEventForm, role: e.target.value })} style={inputStyle} />
                           </div>
-                          <input type="text" placeholder="Cover Photo URL" value={editEventForm.coverImage || ''} onChange={(evt) => setEditEventForm({ ...editEventForm, coverImage: evt.target.value })} style={inputStyle} />
-                          <textarea rows={2} placeholder="Description" value={editEventForm.description || ''} onChange={(evt) => setEditEventForm({ ...editEventForm, description: evt.target.value })} style={{ ...inputStyle, resize: 'vertical' }} />
-                          <input type="text" placeholder="Highlights (comma separated)" value={editEventForm.highlights || ''} onChange={(evt) => setEditEventForm({ ...editEventForm, highlights: evt.target.value })} style={inputStyle} />
+                          <textarea rows={2} placeholder="Description" value={editEventForm.description || ''} onChange={(e) => setEditEventForm({ ...editEventForm, description: e.target.value })} style={{ ...inputStyle, resize: 'vertical' }} />
                           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
                             <button type="button" onClick={() => setEditingEventId(null)} style={{ background: 'transparent', border: '0.5px solid var(--border-accent)', color: 'var(--text-muted)', padding: '0.35rem 0.8rem', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer' }}>
                               Cancel
@@ -797,14 +796,14 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                         /* REGULAR EVENT ROW */
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <div>
-                            <div style={{ fontFamily: 'var(--font-heading)', fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>{e.title}</div>
-                            <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.68rem', color: 'var(--text-muted)' }}>{e.organization} • {e.date}</div>
+                            <div style={{ fontFamily: 'var(--font-heading)', fontSize: '0.88rem', fontWeight: 600, color: 'var(--text-primary)' }}>{evt.title}</div>
+                            <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.68rem', color: 'var(--text-muted)' }}>{evt.organization} • {evt.location}</div>
                           </div>
                           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                            <button onClick={() => startEditEvent(e)} style={{ background: 'rgba(59, 130, 246, 0.12)', border: '0.5px solid var(--border-accent)', color: 'var(--accent-primary)', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
+                            <button onClick={() => startEditEvent(evt)} style={{ background: 'rgba(59, 130, 246, 0.12)', border: '0.5px solid var(--border-accent)', color: 'var(--accent-primary)', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
                               ✏️ Edit
                             </button>
-                            <button onClick={() => cms.deleteEvent(e.id)} style={{ background: 'rgba(255,77,77,0.1)', border: '0.5px solid rgba(255,77,77,0.3)', color: '#ff4d4d', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
+                            <button onClick={() => cms.deleteEvent(evt.id)} style={{ background: 'rgba(255,77,77,0.1)', border: '0.5px solid rgba(255,77,77,0.3)', color: '#ff4d4d', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
                               🗑️ Delete
                             </button>
                           </div>
