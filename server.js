@@ -41,9 +41,14 @@ app.use(
       }
       return callback(null, true) // Pass through for external frontends
     },
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
   })
 )
+
+// Handle preflight OPTIONS requests across all routes
+app.options('*', cors())
 
 // Persistence DB File
 const DB_FILE = path.join(process.cwd(), 'data_store.json')
