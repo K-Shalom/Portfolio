@@ -16,9 +16,9 @@ dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3000
-const EMAIL_FROM = process.env.EMAIL_FROM || 'shalomkubwimbabazi@gmail.com'
-const EMAIL_TO = process.env.EMAIL_TO || EMAIL_FROM
-const EMAIL_APP_PASSWORD = process.env.EMAIL_APP_PASSWORD || ''
+const EMAIL_FROM = process.env.EMAIL_FROM || process.env.SMTP_USER || 'shalomkubwimbabazi@gmail.com'
+const EMAIL_TO = process.env.EMAIL_TO || process.env.ADMIN_EMAIL || EMAIL_FROM
+const EMAIL_APP_PASSWORD = process.env.EMAIL_APP_PASSWORD || process.env.SMTP_PASS || ''
 
 // --- CORS CONFIGURATION ---
 const allowedOrigins = [
@@ -141,7 +141,7 @@ let currentAdminPasscode = {
 }
 
 app.post('/api/request-admin-code', async (_req, res) => {
-  const targetEmail = process.env.EMAIL_TO || process.env.EMAIL_FROM || 'shalomkubwimbabazi@gmail.com'
+  const targetEmail = EMAIL_TO || 'shalomkubwimbabazi@gmail.com'
   const code = Math.floor(100000 + Math.random() * 900000).toString()
   const expiresAt = Date.now() + 15 * 60 * 1000 // 15 mins expiry
 
@@ -169,19 +169,17 @@ app.post('/api/request-admin-code', async (_req, res) => {
       })
     } catch (err) {
       console.error('[CMS Admin Code Email Delivery Failed]', err)
-      return res.json({
-        success: true,
+      return res.status(500).json({
+        success: false,
         sentToEmail: false,
-        demoCode: code,
-        message: `Passcode generated: ${code} (SMTP delivery notice: use code above to unlock)`,
+        message: 'Failed to send verification email. Please check server SMTP configuration on Render.',
       })
     }
   } else {
-    return res.json({
-      success: true,
+    return res.status(400).json({
+      success: false,
       sentToEmail: false,
-      demoCode: code,
-      message: `Passcode generated: ${code} (SMTP environment variables not configured)`,
+      message: 'SMTP environment variables not configured on server.',
     })
   }
 })
