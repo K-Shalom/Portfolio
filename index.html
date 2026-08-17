@@ -2,44 +2,320 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+
+    <!-- ================================
+         BASIC CONFIGURATION
+    ================================= -->
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+
+    <meta name="theme-color" content="#0B0E14" />
+
+    <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Primary Search Engine Meta Tags -->
-    <title>Shalom Kubwimbabazi (K-Shalom / K__Shalom) | Full-Stack Developer & IoT Engineer</title>
-    <meta name="title" content="Shalom Kubwimbabazi (K-Shalom / K__Shalom) | Full-Stack Developer & IoT Engineer" />
-    <meta name="description" content="Official portfolio of Shalom Kubwimbabazi (also known as K-Shalom or K__Shalom) — Advanced Full-Stack Software Developer and Embedded Systems Specialist based in Rwanda." />
-    <meta name="keywords" content="Shalom Kubwimbabazi, shalom kubwimbabazi, shalom k, K-Shalom, K__Shalom, kubwimbabazi, Shalom K, Software Engineer Rwanda, Java Spring Boot Developer, React Developer Kigali, IoT Embedded Systems, Portfolio" />
-    <meta name="author" content="Shalom Kubwimbabazi" />
-    <meta name="robots" content="index, follow" />
 
-    <!-- Open Graph / Facebook / LinkedIn -->
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Shalom Kubwimbabazi (K-Shalom / K__Shalom) — Full-Stack Developer & IoT Engineer" />
-    <meta property="og:description" content="Explore projects, articles, certifications, and technical engineering work by Shalom Kubwimbabazi (K-Shalom)." />
-    <meta property="og:site_name" content="Shalom Kubwimbabazi Portfolio" />
+    <!-- Canonical URL -->
+    <link
+      rel="canonical"
+      href="https://www.shalomk.me/"
+    />
 
-    <!-- Twitter Cards -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Shalom Kubwimbabazi (K-Shalom) | Software Engineer" />
-    <meta name="twitter:description" content="Official portfolio of Shalom Kubwimbabazi (K-Shalom / K__Shalom) — Full-Stack Software Engineer & Embedded Systems Specialist." />
+    <!-- ================================
+         PRIMARY SEO
+    ================================= -->
 
-    <!-- JSON-LD Structured Data for Search Engine Optimization -->
+    <title>
+      Shalom Kubwimbabazi | Full-Stack Developer & UI/UX Designer
+    </title>
+
+    <meta
+      name="description"
+      content="Shalom Kubwimbabazi, also known as K-Shalom, is a Full-Stack Developer and UI/UX Designer from Rwanda building modern, scalable software applications and meaningful digital experiences."
+    />
+
+    <meta
+      name="keywords"
+      content="Shalom Kubwimbabazi, K-Shalom, K__Shalom, Full-Stack Developer Rwanda, Software Developer Rwanda, UI/UX Designer Rwanda, Java Developer Rwanda, Spring Boot Developer Rwanda, React Developer Rwanda, Node.js Developer Rwanda, IoT Developer Rwanda, Embedded Systems Rwanda, ESP32 Developer Rwanda, Web Developer Rwanda"
+    />
+
+    <meta
+      name="author"
+      content="Shalom Kubwimbabazi"
+    />
+
+    <meta
+      name="creator"
+      content="Shalom Kubwimbabazi"
+    />
+
+    <meta
+      name="publisher"
+      content="Shalom Kubwimbabazi"
+    />
+
+    <!-- Search Engine Instructions -->
+    <meta
+      name="robots"
+      content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+    />
+
+    <!-- ================================
+         OPEN GRAPH
+    ================================= -->
+
+    <meta
+      property="og:type"
+      content="website"
+    />
+
+    <meta
+      property="og:url"
+      content="https://www.shalomk.me/"
+    />
+
+    <meta
+      property="og:title"
+      content="Shalom Kubwimbabazi | Full-Stack Developer & UI/UX Designer"
+    />
+
+    <meta
+      property="og:description"
+      content="Official portfolio of Shalom Kubwimbabazi (K-Shalom), a Full-Stack Developer and UI/UX Designer from Rwanda."
+    />
+
+    <meta
+      property="og:site_name"
+      content="Shalom Kubwimbabazi"
+    />
+
+    <meta
+      property="og:locale"
+      content="en_RW"
+    />
+
+    <!-- Replace with your actual Open Graph image -->
+    <meta
+      property="og:image"
+      content="https://www.shalomk.me/YOUR-OG-IMAGE.png"
+    />
+
+    <meta
+      property="og:image:alt"
+      content="Shalom Kubwimbabazi — Full-Stack Developer & UI/UX Designer"
+    />
+
+    <meta
+      property="og:image:type"
+      content="image/png"
+    />
+
+    <!-- ================================
+         TWITTER / X CARD
+    ================================= -->
+
+    <meta
+      name="twitter:card"
+      content="summary_large_image"
+    />
+
+    <meta
+      name="twitter:title"
+      content="Shalom Kubwimbabazi | Full-Stack Developer & UI/UX Designer"
+    />
+
+    <meta
+      name="twitter:description"
+      content="Official portfolio of Shalom Kubwimbabazi (K-Shalom), a Full-Stack Developer and UI/UX Designer from Rwanda."
+    />
+
+    <meta
+      name="twitter:image"
+      content="https://www.shalomk.me/YOUR-OG-IMAGE.png"
+    />
+
+    <meta
+      name="twitter:image:alt"
+      content="Shalom Kubwimbabazi — Full-Stack Developer & UI/UX Designer"
+    />
+
+    <!-- ================================
+         PERSON STRUCTURED DATA
+         Helps search engines understand
+         who Shalom Kubwimbabazi is.
+    ================================= -->
+
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Shalom Kubwimbabazi",
-      "alternateName": ["K-Shalom", "K__Shalom", "Shalom K", "Kubwimbabazi"],
-      "jobTitle": "Full-Stack Software Engineer & IoT Specialist",
-      "description": "Advanced Full-Stack Software Developer and Embedded Systems Specialist from Rwanda.",
-      "knowsAbout": ["Full-Stack Development", "Java", "Spring Boot", "React", "Node.js", "IoT", "Embedded Systems", "Hardware Architecture"],
-      "nationality": "Rwandan"
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+
+        "@id": "https://www.shalomk.me/#person",
+
+        "name": "Shalom Kubwimbabazi",
+
+        "givenName": "Shalom",
+
+        "familyName": "Kubwimbabazi",
+
+        "alternateName": [
+          "K-Shalom",
+          "K__Shalom",
+          "Shalom K"
+        ],
+
+        "url": "https://www.shalomk.me/",
+
+        "image": {
+          "@type": "ImageObject",
+          "url": "https://www.shalomk.me/YOUR-PROFILE-IMAGE.jpg"
+        },
+
+        "jobTitle": "Full-Stack Developer & UI/UX Designer",
+
+        "description": "Shalom Kubwimbabazi is a Full-Stack Developer and UI/UX Designer from Rwanda focused on building modern, scalable software applications and meaningful digital experiences.",
+
+        "nationality": {
+          "@type": "Country",
+          "name": "Rwanda"
+        },
+
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "RW"
+        },
+
+        "knowsAbout": [
+          "Full-Stack Development",
+          "Software Engineering",
+          "Web Development",
+          "Frontend Development",
+          "Backend Development",
+          "UI/UX Design",
+          "Java",
+          "Spring Boot",
+          "React",
+          "Node.js",
+          "PHP",
+          "JavaScript",
+          "TypeScript",
+          "HTML",
+          "CSS",
+          "Tailwind CSS",
+          "SQL",
+          "PostgreSQL",
+          "Oracle Database",
+          "IoT",
+          "Embedded Systems",
+          "ESP32",
+          "WebSockets",
+          "REST APIs",
+          "Database Systems"
+        ],
+
+        "sameAs": [
+          "https://github.com/K-Shalom",
+          "https://www.linkedin.com/in/shalom-kubwimbabazi/",
+          "https://www.instagram.com/k__shalom/"
+        ]
+      }
     </script>
+
+    <!-- ================================
+         WEBSITE STRUCTURED DATA
+    ================================= -->
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+
+        "@id": "https://www.shalomk.me/#website",
+
+        "url": "https://www.shalomk.me/",
+
+        "name": "Shalom Kubwimbabazi",
+
+        "alternateName": [
+          "K-Shalom",
+          "K__Shalom"
+        ],
+
+        "description": "Official portfolio of Shalom Kubwimbabazi, a Full-Stack Developer and UI/UX Designer from Rwanda.",
+
+        "inLanguage": "en",
+
+        "publisher": {
+          "@id": "https://www.shalomk.me/#person"
+        }
+      }
+    </script>
+
+    <!-- ================================
+         WEBPAGE STRUCTURED DATA
+    ================================= -->
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+
+        "@id": "https://www.shalomk.me/#webpage",
+
+        "url": "https://www.shalomk.me/",
+
+        "name": "Shalom Kubwimbabazi | Full-Stack Developer & UI/UX Designer",
+
+        "description": "Official portfolio of Shalom Kubwimbabazi (K-Shalom), a Full-Stack Developer and UI/UX Designer from Rwanda.",
+
+        "isPartOf": {
+          "@id": "https://www.shalomk.me/#website"
+        },
+
+        "about": {
+          "@id": "https://www.shalomk.me/#person"
+        },
+
+        "author": {
+          "@id": "https://www.shalomk.me/#person"
+        },
+
+        "creator": {
+          "@id": "https://www.shalomk.me/#person"
+        },
+
+        "inLanguage": "en"
+      }
+    </script>
+
+    <!-- ================================
+         PROFESSIONAL IDENTITY LINKS
+    ================================= -->
+
+    <link
+      rel="me"
+      href="https://github.com/K-Shalom"
+    />
+
+    <link
+      rel="me"
+      href="https://www.linkedin.com/in/shalom-kubwimbabazi/"
+    />
+
+    <link
+      rel="me"
+      href="https://www.instagram.com/k__shalom/"
+    />
   </head>
+
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+
+    <script
+      type="module"
+      src="/src/main.jsx"
+    ></script>
   </body>
 </html>
