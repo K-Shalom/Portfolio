@@ -1,10 +1,10 @@
 /* global process */
 import express from 'express'
 import cors from 'cors'
-import nodemailer from 'nodemailer'
 import dotenv from 'dotenv'
 import path from 'path'
 import fs from 'fs'
+import { Resend } from 'resend'
 import { createServer as createViteServer } from 'vite'
 
 import { initialProjects } from './src/data/projects.js'
@@ -16,9 +16,17 @@ dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 3000
-const EMAIL_FROM = process.env.EMAIL_FROM || process.env.SMTP_USER || 'shalomkubwimbabazi@gmail.com'
-const EMAIL_TO = process.env.EMAIL_TO || process.env.ADMIN_EMAIL || EMAIL_FROM
-const EMAIL_APP_PASSWORD = process.env.EMAIL_APP_PASSWORD || process.env.SMTP_PASS || ''
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || process.env.SMTP_USER || 'shalomkubwimbabazi@gmail.com'
+
+// Initialize Resend API client (uses HTTPS port 443 - bypasses Render port blocks)
+const resendApiKey = process.env.RESEND_API_KEY
+const resend = resendApiKey ? new Resend(resendApiKey) : null
+
+if (resend) {
+  console.log('[Server Email] Resend HTTP API client initialized successfully.')
+} else {
+  console.warn('[Server Email] Missing RESEND_API_KEY environment variable.')
+}
 
 // --- CORS CONFIGURATION ---
 const allowedOrigins = [
@@ -48,7 +56,7 @@ app.use(
 
 app.options('*', cors())
 
-// Persistence DB File
+// Persistence DB Setup
 const DB_FILE = path.join(process.cwd(), 'data_store.json')
 
 function loadDataStore() {
@@ -64,7 +72,7 @@ function loadDataStore() {
       }
     }
   } catch (err) {
-    console.error('[Server DB] Error reading storage file:', err)
+    console.error('[Server DB] Error loading data store:', err)
   }
   return {
     projects: initialProjects,
@@ -84,30 +92,6 @@ function saveDataStore() {
   }
 }
 
-let transporter = null
-const cleanPassword = EMAIL_APP_PASSWORD ? EMAIL_APP_PASSWORD.trim().replace(/\s+/g, '') : ''
-
-if (EMAIL_FROM && cleanPassword) {
-  // Configured with standard Port 587 (TLS/STARTTLS) + Debugging enabled
-  transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // TLS
-    auth: {
-      user: EMAIL_FROM,
-      pass: cleanPassword,
-    },
-    tls: {
-      rejectUnauthorized: false // Prevents cloud SSL handshake blocks
-    },
-    logger: true, // Output details to server logs
-    debug: true
-  })
-  console.log(`[Server SMTP] Nodemailer transporter ready for user ${EMAIL_FROM}`)
-} else {
-  console.warn('[Server] Missing EMAIL_FROM or EMAIL_APP_PASSWORD in environment variables.')
-}
-
 app.use(express.json({ limit: '10mb' }))
 
 // --- CONTACT EMAIL ROUTE ---
@@ -118,74 +102,70 @@ app.post('/api/send-email', async (req, res) => {
     return res.status(400).json({ error: 'All form fields are required.' })
   }
 
-  if (!transporter) {
-    return res.status(500).json({ error: 'SMTP credentials not configured on server.' })
+  if (!resend) {
+    return res.status(500).json({ error: 'Email service key missing on server.' })
   }
 
   try {
-    await transporter.sendMail({
-      from: EMAIL_FROM,
-      to: EMAIL_TO,
+    await resend.emails.send({
+      from: 'Portfolio Contact <onboarding@resend.dev>',
+      to: ADMIN_EMAIL,
       replyTo: email,
       subject: `[Portfolio Contact] ${subject}`,
-      text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
       html: `<p><strong>Name:</strong> ${name}</p><p><strong>Email:</strong> ${email}</p><p><strong>Message:</strong></p><p>${message.replace(/\n/g, '<br/>')}</p>`,
     })
 
     return res.status(200).json({ success: true })
   } catch (error) {
-    console.error('[Email Send Error]:', error)
-    return res.status(500).json({ error: 'Failed to send email. Check backend logs.' })
+    console.error('[Resend Contact Email Error]:', error)
+    return res.status(500).json({ error: 'Could not send contact email.' })
   }
 })
 
-// --- SECURE ADMIN PASSCODE AUTHENTICATION ---
+// --- SECURE ADMIN PASSCODE ROUTE ---
 let currentAdminPasscode = {
   code: null,
   expiresAt: 0,
 }
 
 app.post('/api/request-admin-code', async (_req, res) => {
-  const targetEmail = EMAIL_TO || 'shalomkubwimbabazi@gmail.com'
   const code = Math.floor(100000 + Math.random() * 900000).toString()
   const expiresAt = Date.now() + 15 * 60 * 1000 // 15 mins expiry
 
   currentAdminPasscode = { code, expiresAt }
 
-  if (!transporter) {
-    return res.status(400).json({
+  if (!resend) {
+    return res.status(500).json({
       success: false,
       sentToEmail: false,
-      message: 'SMTP credentials missing from Render environment.',
+      message: 'RESEND_API_KEY environment variable is missing on Render.',
     })
   }
 
   try {
-    await transporter.sendMail({
-      from: `Portfolio Admin <${EMAIL_FROM}>`,
-      to: targetEmail,
+    await resend.emails.send({
+      from: 'Portfolio Admin <onboarding@resend.dev>',
+      to: ADMIN_EMAIL,
       subject: `[Portfolio CMS] Passcode: ${code}`,
-      text: `Your one-time admin passcode is: ${code}\n\nExpires in 15 minutes.`,
       html: `<div style="font-family:sans-serif; padding:20px; background:#07090f; color:#fff; border-radius:8px;">
-        <h2>CMS Admin Security Code</h2>
-        <p>Your passcode to unlock the portal is:</p>
-        <div style="font-size:28px; font-weight:bold; font-family:monospace; color:#3b82f6; letter-spacing:4px; padding:12px; background:rgba(59,130,246,0.1); text-align:center;">${code}</div>
-        <p style="color:#888; font-size:12px;">Expires in 15 minutes.</p>
+        <h2 style="color:#3b82f6;">CMS Admin Security Code</h2>
+        <p>Your one-time passcode to unlock the Portfolio Admin Portal is:</p>
+        <div style="font-size:28px; font-weight:bold; font-family:monospace; color:#3b82f6; letter-spacing:4px; padding:12px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); border-radius:4px; text-align:center; margin:16px 0;">${code}</div>
+        <p style="color:#888; font-size:12px;">This passcode expires in 15 minutes.</p>
       </div>`,
     })
-    
-    // Passcode is NOT returned in this response (No auto-fill potential)
+
     return res.json({
       success: true,
       sentToEmail: true,
-      message: 'Passcode sent to administrator email! Check your inbox/spam folder.',
+      message: 'Passcode sent successfully to administrator email!',
     })
   } catch (err) {
-    console.error('[CMS Admin Passcode Delivery Failed]:', err)
+    console.error('[Resend Admin Code Email Error]:', err)
     return res.status(500).json({
       success: false,
       sentToEmail: false,
-      message: 'Failed to deliver email. Check Render console logs for details.',
+      message: 'Failed to deliver passcode via email service.',
     })
   }
 })
@@ -212,50 +192,14 @@ app.post('/api/verify-admin-code', (req, res) => {
   })
 })
 
-// --- RESTful API ENDPOINTS FOR CMS ---
+// --- REST ENDPOINTS & SERVER INIT ---
 app.get('/api/projects', (_req, res) => res.json(db.projects))
-app.post('/api/projects', (req, res) => {
-  const newProject = {
-    id: `proj-${Date.now()}`,
-    title: req.body.title || 'Untitled Project',
-    coverImage: req.body.coverImage || '',
-    description: req.body.description || '',
-    tags: Array.isArray(req.body.tags) ? req.body.tags : [],
-    languages: Array.isArray(req.body.languages) ? req.body.languages : [],
-    categories: Array.isArray(req.body.categories) ? req.body.categories : ['Web'],
-    github: req.body.github || '#',
-    live: req.body.live || '#',
-    featured: Boolean(req.body.featured),
-  }
-  db.projects.unshift(newProject)
-  saveDataStore()
-  res.status(201).json(newProject)
-})
-
-app.put('/api/projects/:id', (req, res) => {
-  const { id } = req.params
-  const index = db.projects.findIndex((p) => String(p.id) === String(id))
-  if (index === -1) return res.status(404).json({ error: 'Project not found' })
-
-  db.projects[index] = { ...db.projects[index], ...req.body }
-  saveDataStore()
-  res.json(db.projects[index])
-})
-
-app.delete('/api/projects/:id', (req, res) => {
-  const { id } = req.params
-  db.projects = db.projects.filter((p) => String(p.id) !== String(id))
-  saveDataStore()
-  res.json({ success: true, id })
-})
-
-// ARTICLES, CERTIFICATES, EVENTS & SERVER INIT
 app.get('/api/articles', (_req, res) => res.json(db.articles))
 app.get('/api/certificates', (_req, res) => res.json(db.certificates))
 app.get('/api/events', (_req, res) => res.json(db.events))
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', storeSize: { projects: db.projects.length }})
+  res.json({ status: 'ok', storeSize: { projects: db.projects.length } })
 })
 
 async function startServer() {
