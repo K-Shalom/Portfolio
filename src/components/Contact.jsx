@@ -99,63 +99,28 @@ export default function Contact() {
     setErrors({});
 
     setLoading(true);
-    
-    // Read the Access Key dynamically from environment variables
-    const web3FormsKey = import.meta.env.VITE_WEB3FORMS_KEY;
 
-    if (web3FormsKey) {
-      const formData = new FormData();
-      formData.append("access_key", web3FormsKey);
-      formData.append("name", form.name);
-      formData.append("email", form.email);
-      formData.append("subject", form.subject);
-      formData.append("message", form.message);
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
 
-      try {
-        const response = await fetch("https://api.web3forms.com/submit", {
-          method: "POST",
-          body: formData,
-        });
+      const data = await response.json();
 
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-          throw new Error(data.message || 'Failed to send message');
-        }
-
-        setSent(true);
-        setTimeout(() => setSent(false), 4000);
-        setForm({ name: '', email: '', subject: '', message: '' });
-      } catch (error) {
-        console.error('Error sending message:', error);
-        setErrors({ general: 'Failed to send message. Please try again later.' });
-      } finally {
-        setLoading(false);
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to send message');
       }
-    } else {
-      // Send via server.js API route
-      try {
-        const response = await fetch('/api/send-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(form),
-        });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || 'Failed to send message');
-        }
-
-        setSent(true);
-        setTimeout(() => setSent(false), 4000);
-        setForm({ name: '', email: '', subject: '', message: '' });
-      } catch (error) {
-        console.error('Error sending message:', error);
-        setErrors({ general: 'Failed to send message. Please try again later.' });
-      } finally {
-        setLoading(false);
-      }
+      setSent(true);
+      setTimeout(() => setSent(false), 4000);
+      setForm({ name: '', email: '', subject: '', message: '' });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setErrors({ general: 'Failed to send message. Please try again later.' });
+    } finally {
+      setLoading(false);
     }
   };
 
