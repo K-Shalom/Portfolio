@@ -18,7 +18,7 @@ const app = express()
 const PORT = process.env.PORT || 3000
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || process.env.SMTP_USER || 'shalomkubwimbabazi@gmail.com'
 
-// Initialize Resend API client (uses HTTPS port 443 - bypasses Render port blocks)
+// Initialize Resend API client (HTTPS Port 443 - Bypasses Render port blocks)
 const resendApiKey = process.env.RESEND_API_KEY
 const resend = resendApiKey ? new Resend(resendApiKey) : null
 
@@ -56,7 +56,7 @@ app.use(
 
 app.options('*', cors())
 
-// Persistence DB Setup
+// Persistence DB File
 const DB_FILE = path.join(process.cwd(), 'data_store.json')
 
 function loadDataStore() {
@@ -72,7 +72,7 @@ function loadDataStore() {
       }
     }
   } catch (err) {
-    console.error('[Server DB] Error loading data store:', err)
+    console.error('[Server DB] Error reading storage file, falling back to initial data:', err)
   }
   return {
     projects: initialProjects,
@@ -108,7 +108,7 @@ app.post('/api/send-email', async (req, res) => {
 
   try {
     await resend.emails.send({
-      from: 'Portfolio Contact <onboarding@resend.dev>',
+      from: 'Shalom <contact@contact.shalomk.me>',
       to: ADMIN_EMAIL,
       replyTo: email,
       subject: `[Portfolio Contact] ${subject}`,
@@ -122,7 +122,7 @@ app.post('/api/send-email', async (req, res) => {
   }
 })
 
-// --- SECURE ADMIN PASSCODE ROUTE ---
+// --- SECURE ADMIN EMAIL PASSCODE AUTHENTICATION ---
 let currentAdminPasscode = {
   code: null,
   expiresAt: 0,
@@ -144,21 +144,21 @@ app.post('/api/request-admin-code', async (_req, res) => {
 
   try {
     await resend.emails.send({
-      from: 'Portfolio Admin <onboarding@resend.dev>',
+      from: 'Portfolio Security <noreply@contact.shalomk.me>',
       to: ADMIN_EMAIL,
       subject: `[Portfolio CMS] Passcode: ${code}`,
       html: `<div style="font-family:sans-serif; padding:20px; background:#07090f; color:#fff; border-radius:8px;">
-        <h2 style="color:#3b82f6;">CMS Admin Security Code</h2>
+        <h2 style="color:#3b82f6; margin-top:0;">CMS Admin Security Code</h2>
         <p>Your one-time passcode to unlock the Portfolio Admin Portal is:</p>
         <div style="font-size:28px; font-weight:bold; font-family:monospace; color:#3b82f6; letter-spacing:4px; padding:12px; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.3); border-radius:4px; text-align:center; margin:16px 0;">${code}</div>
-        <p style="color:#888; font-size:12px;">This passcode expires in 15 minutes.</p>
+        <p style="color:#888; font-size:12px;">This code will expire in 15 minutes.</p>
       </div>`,
     })
 
     return res.json({
       success: true,
       sentToEmail: true,
-      message: 'Passcode sent successfully to administrator email!',
+      message: 'Passcode sent successfully to administrator email! Please check your inbox.',
     })
   } catch (err) {
     console.error('[Resend Admin Code Email Error]:', err)
@@ -188,18 +188,189 @@ app.post('/api/verify-admin-code', (req, res) => {
 
   return res.status(400).json({
     success: false,
-    error: 'Invalid or expired passcode.',
+    error: 'Invalid or expired passcode. Please request a new code to your email.',
   })
 })
 
-// --- REST ENDPOINTS & SERVER INIT ---
-app.get('/api/projects', (_req, res) => res.json(db.projects))
-app.get('/api/articles', (_req, res) => res.json(db.articles))
-app.get('/api/certificates', (_req, res) => res.json(db.certificates))
-app.get('/api/events', (_req, res) => res.json(db.events))
+// --- RESTful API ENDPOINTS FOR CMS ---
+
+// PROJECTS
+app.get('/api/projects', (_req, res) => {
+  res.json(db.projects)
+})
+
+app.post('/api/projects', (req, res) => {
+  const newProject = {
+    id: `proj-${Date.now()}`,
+    title: req.body.title || 'Untitled Project',
+    coverImage: req.body.coverImage || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+    description: req.body.description || '',
+    tags: Array.isArray(req.body.tags) ? req.body.tags : (req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : []),
+    languages: Array.isArray(req.body.languages) ? req.body.languages : (req.body.languages ? req.body.languages.split(',').map(l => l.trim()) : []),
+    categories: Array.isArray(req.body.categories) ? req.body.categories : (req.body.categories ? req.body.categories.split(',').map(c => c.trim()) : ['Web']),
+    github: req.body.github || 'https://github.com/K-Shalom',
+    live: req.body.live || '#',
+    featured: Boolean(req.body.featured),
+  }
+  db.projects.unshift(newProject)
+  saveDataStore()
+  res.status(201).json(newProject)
+})
+
+app.put('/api/projects/:id', (req, res) => {
+  const { id } = req.params
+  const index = db.projects.findIndex((p) => String(p.id) === String(id))
+  if (index === -1) return res.status(404).json({ error: 'Project not found' })
+
+  db.projects[index] = {
+    ...db.projects[index],
+    ...req.body,
+    tags: Array.isArray(req.body.tags) ? req.body.tags : (req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : db.projects[index].tags),
+    languages: Array.isArray(req.body.languages) ? req.body.languages : (req.body.languages ? req.body.languages.split(',').map(l => l.trim()) : db.projects[index].languages),
+    categories: Array.isArray(req.body.categories) ? req.body.categories : (req.body.categories ? req.body.categories.split(',').map(c => c.trim()) : db.projects[index].categories),
+  }
+  saveDataStore()
+  res.json(db.projects[index])
+})
+
+app.delete('/api/projects/:id', (req, res) => {
+  const { id } = req.params
+  db.projects = db.projects.filter((p) => String(p.id) !== String(id))
+  saveDataStore()
+  res.json({ success: true, id })
+})
+
+// ARTICLES
+app.get('/api/articles', (_req, res) => {
+  res.json(db.articles)
+})
+
+app.post('/api/articles', (req, res) => {
+  const newArticle = {
+    id: `art-${Date.now()}`,
+    title: req.body.title || 'Untitled Article',
+    coverImage: req.body.coverImage || 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80',
+    summary: req.body.summary || '',
+    content: req.body.content || '',
+    date: req.body.date || new Date().toISOString().split('T')[0],
+    readTime: req.body.readTime || '5 min read',
+    tags: Array.isArray(req.body.tags) ? req.body.tags : (req.body.tags ? req.body.tags.split(',').map(t => t.trim()) : []),
+    author: req.body.author || 'Shalom Kubwimbabazi',
+    link: req.body.link || '#',
+    published: true,
+  }
+  db.articles.unshift(newArticle)
+  saveDataStore()
+  res.status(201).json(newArticle)
+})
+
+app.put('/api/articles/:id', (req, res) => {
+  const { id } = req.params
+  const index = db.articles.findIndex((a) => String(a.id) === String(id))
+  if (index === -1) return res.status(404).json({ error: 'Article not found' })
+
+  db.articles[index] = { ...db.articles[index], ...req.body }
+  saveDataStore()
+  res.json(db.articles[index])
+})
+
+app.delete('/api/articles/:id', (req, res) => {
+  const { id } = req.params
+  db.articles = db.articles.filter((a) => String(a.id) !== String(id))
+  saveDataStore()
+  res.json({ success: true, id })
+})
+
+// CERTIFICATES
+app.get('/api/certificates', (_req, res) => {
+  res.json(db.certificates)
+})
+
+app.post('/api/certificates', (req, res) => {
+  const newCert = {
+    id: `cert-${Date.now()}`,
+    title: req.body.title || 'Certificate Title',
+    issuer: req.body.issuer || 'Issuing Authority',
+    issueDate: req.body.issueDate || new Date().toISOString().slice(0, 7),
+    credentialId: req.body.credentialId || `CERT-${Math.floor(Math.random() * 10000)}`,
+    credentialUrl: req.body.credentialUrl || 'https://github.com/K-Shalom',
+    coverImage: req.body.coverImage || 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80',
+    category: req.body.category || 'Certification',
+    skills: Array.isArray(req.body.skills) ? req.body.skills : (req.body.skills ? req.body.skills.split(',').map(s => s.trim()) : []),
+    verified: req.body.verified !== false,
+  }
+  db.certificates.unshift(newCert)
+  saveDataStore()
+  res.status(201).json(newCert)
+})
+
+app.put('/api/certificates/:id', (req, res) => {
+  const { id } = req.params
+  const index = db.certificates.findIndex((c) => String(c.id) === String(id))
+  if (index === -1) return res.status(404).json({ error: 'Certificate not found' })
+
+  db.certificates[index] = { ...db.certificates[index], ...req.body }
+  saveDataStore()
+  res.json(db.certificates[index])
+})
+
+app.delete('/api/certificates/:id', (req, res) => {
+  const { id } = req.params
+  db.certificates = db.certificates.filter((c) => String(c.id) !== String(id))
+  saveDataStore()
+  res.json({ success: true, id })
+})
+
+// EVENTS
+app.get('/api/events', (_req, res) => {
+  res.json(db.events)
+})
+
+app.post('/api/events', (req, res) => {
+  const newEvent = {
+    id: `evt-${Date.now()}`,
+    title: req.body.title || 'Event Title',
+    organization: req.body.organization || 'Organization Name',
+    location: req.body.location || 'Rwanda',
+    date: req.body.date || new Date().toISOString().split('T')[0],
+    role: req.body.role || 'Attendee',
+    coverImage: req.body.coverImage || 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=800&q=80',
+    description: req.body.description || '',
+    highlights: Array.isArray(req.body.highlights) ? req.body.highlights : (req.body.highlights ? req.body.highlights.split(',').map(h => h.trim()) : []),
+    category: req.body.category || 'Event',
+  }
+  db.events.unshift(newEvent)
+  saveDataStore()
+  res.status(201).json(newEvent)
+})
+
+app.put('/api/events/:id', (req, res) => {
+  const { id } = req.params
+  const index = db.events.findIndex((e) => String(e.id) === String(id))
+  if (index === -1) return res.status(404).json({ error: 'Event not found' })
+
+  db.events[index] = { ...db.events[index], ...req.body }
+  saveDataStore()
+  res.json(db.events[index])
+})
+
+app.delete('/api/events/:id', (req, res) => {
+  const { id } = req.params
+  db.events = db.events.filter((e) => String(e.id) !== String(id))
+  saveDataStore()
+  res.json({ success: true, id })
+})
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', storeSize: { projects: db.projects.length } })
+  res.json({
+    status: 'ok',
+    storeSize: {
+      projects: db.projects.length,
+      articles: db.articles.length,
+      certificates: db.certificates.length,
+      events: db.events.length,
+    },
+  })
 })
 
 async function startServer() {
@@ -213,11 +384,15 @@ async function startServer() {
     const distPath = path.join(process.cwd(), 'dist')
     if (fs.existsSync(distPath)) {
       app.use(express.static(distPath))
-      app.get('*', (_req, res) => res.sendFile(path.join(distPath, 'index.html')))
+      app.get('*', (_req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'))
+      })
     }
   }
 
-  app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`))
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on http://0.0.0.0:${PORT}`)
+  })
 }
 
 startServer()
