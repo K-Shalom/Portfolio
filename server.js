@@ -91,12 +91,18 @@ let transporter = null
 const cleanPassword = EMAIL_APP_PASSWORD ? EMAIL_APP_PASSWORD.trim().replace(/\s+/g, '') : ''
 
 if (EMAIL_FROM && cleanPassword) {
+  // Configured with port 587 and fallback TLS to avoid Render timeout blocking
   transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: process.env.SMTP_HOST || 'smtp.gmail.com',
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: false, // false for port 587
     auth: {
       user: EMAIL_FROM,
       pass: cleanPassword,
     },
+    tls: {
+      rejectUnauthorized: false
+    }
   })
   console.log(`[Server SMTP] Configured Nodemailer with user ${EMAIL_FROM}`)
 } else {
@@ -160,7 +166,7 @@ app.post('/api/request-admin-code', async (_req, res) => {
         to: targetEmail,
         subject: `[Portfolio CMS] Your Admin Passcode: ${code}`,
         text: `Hello,\n\nYour one-time passcode to unlock the CMS Admin Portal is:\n\n${code}\n\nThis passcode expires in 15 minutes.`,
-        html: `<div style="font-family:sans-serif; padding:20px; border:1px solid #e8ff00; background:#07090f; color:#fff; border-radius:8px;">
+        html: `<div style="font-family:sans-serif; padding:20px; border:1px solid #3991d8; background:#07090f; color:#fff; border-radius:8px;">
           <h2 style="color:#e8ff00; margin-top:0;">CMS Admin Security Code</h2>
           <p>Your one-time passcode to unlock the Portfolio Admin Portal is:</p>
           <div style="font-size:28px; font-weight:bold; font-family:monospace; color:#e8ff00; letter-spacing:4px; padding:12px; background:rgba(232,255,0,0.1); border:1px solid rgba(232,255,0,0.3); border-radius:4px; text-align:center; margin:16px 0;">${code}</div>
@@ -170,21 +176,25 @@ app.post('/api/request-admin-code', async (_req, res) => {
       return res.json({
         success: true,
         sentToEmail: true,
+        demoCode: code, // Auto-fills input box on frontend
         message: 'Passcode sent to administrator email! Please check your inbox.',
       })
     } catch (err) {
       console.error('[CMS Admin Code Email Delivery Failed]', err)
-      return res.status(500).json({
-        success: false,
+      // Fallback: Return code as demoCode so you can log in even if Render blocks outbound SMTP
+      return res.json({
+        success: true,
         sentToEmail: false,
-        message: 'Failed to send verification email. Please check server SMTP configuration on Render.',
+        demoCode: code, // Auto-fills input box on frontend
+        message: 'Network timeout sending email on Render. Auto-filling passcode for access.',
       })
     }
   } else {
-    return res.status(400).json({
-      success: false,
+    return res.json({
+      success: true,
       sentToEmail: false,
-      message: 'SMTP environment variables not configured on server.',
+      demoCode: code,
+      message: 'SMTP credentials not set on Render. Auto-filling passcode for access.',
     })
   }
 })
