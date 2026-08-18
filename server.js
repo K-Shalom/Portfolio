@@ -35,11 +35,10 @@ if (process.env.ALLOWED_ORIGIN) {
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (like mobile apps, curl, or Postman)
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true)
       }
-      return callback(null, true) // Pass through for external frontends
+      return callback(null, true)
     },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
@@ -47,7 +46,6 @@ app.use(
   })
 )
 
-// Handle preflight OPTIONS requests across all routes
 app.options('*', cors())
 
 // Persistence DB File
@@ -91,18 +89,18 @@ let transporter = null
 const cleanPassword = EMAIL_APP_PASSWORD ? EMAIL_APP_PASSWORD.trim().replace(/\s+/g, '') : ''
 
 if (EMAIL_FROM && cleanPassword) {
-  // Configured with port 587 and fallback TLS to avoid Render timeout blocking
+  // Configured using Port 465 (Direct SSL) with strict timeouts to bypass cloud network blocks
   transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'smtp.gmail.com',
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: false, // false for port 587
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // Direct SSL
     auth: {
       user: EMAIL_FROM,
       pass: cleanPassword,
     },
-    tls: {
-      rejectUnauthorized: false
-    }
+    connectionTimeout: 10000, // 10s timeout
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
   })
   console.log(`[Server SMTP] Configured Nodemailer with user ${EMAIL_FROM}`)
 } else {
@@ -145,7 +143,7 @@ app.post('/api/send-email', async (req, res) => {
   }
 })
 
-// --- ADMIN EMAIL PASSCODE AUTHENTICATION ---
+// --- SECURE ADMIN EMAIL PASSCODE AUTHENTICATION ---
 let currentAdminPasscode = {
   code: null,
   expiresAt: 0,
@@ -166,35 +164,33 @@ app.post('/api/request-admin-code', async (_req, res) => {
         to: targetEmail,
         subject: `[Portfolio CMS] Your Admin Passcode: ${code}`,
         text: `Hello,\n\nYour one-time passcode to unlock the CMS Admin Portal is:\n\n${code}\n\nThis passcode expires in 15 minutes.`,
-        html: `<div style="font-family:sans-serif; padding:20px; border:1px solid #3991d8; background:#07090f; color:#fff; border-radius:8px;">
+        html: `<div style="font-family:sans-serif; padding:20px; border:1px solid #e8ff00; background:#07090f; color:#fff; border-radius:8px;">
           <h2 style="color:#e8ff00; margin-top:0;">CMS Admin Security Code</h2>
           <p>Your one-time passcode to unlock the Portfolio Admin Portal is:</p>
           <div style="font-size:28px; font-weight:bold; font-family:monospace; color:#e8ff00; letter-spacing:4px; padding:12px; background:rgba(232,255,0,0.1); border:1px solid rgba(232,255,0,0.3); border-radius:4px; text-align:center; margin:16px 0;">${code}</div>
           <p style="color:#888; font-size:12px;">This code will expire in 15 minutes.</p>
         </div>`,
       })
+      
+      // Strictly secure response: code is ONLY sent to your email
       return res.json({
         success: true,
         sentToEmail: true,
-        demoCode: code, // Auto-fills input box on frontend
         message: 'Passcode sent to administrator email! Please check your inbox.',
       })
     } catch (err) {
       console.error('[CMS Admin Code Email Delivery Failed]', err)
-      // Fallback: Return code as demoCode so you can log in even if Render blocks outbound SMTP
-      return res.json({
-        success: true,
+      return res.status(500).json({
+        success: false,
         sentToEmail: false,
-        demoCode: code, // Auto-fills input box on frontend
-        message: 'Network timeout sending email on Render. Auto-filling passcode for access.',
+        message: 'Email delivery timed out. Please verify SMTP environment variables on Render.',
       })
     }
   } else {
-    return res.json({
-      success: true,
+    return res.status(400).json({
+      success: false,
       sentToEmail: false,
-      demoCode: code,
-      message: 'SMTP credentials not set on Render. Auto-filling passcode for access.',
+      message: 'SMTP credentials not configured on server environment.',
     })
   }
 })
