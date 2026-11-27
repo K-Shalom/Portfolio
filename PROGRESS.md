@@ -1,6 +1,6 @@
 # Portfolio V2 progress
 
-Updated November 28, 2026 (Africa/Kigali). Current phase: **Phase 0 — IMPLEMENTED** (implementation complete). GitHub integration: **IN PROGRESS**, merge gated by deployment verification. Phases 1–12 remain PENDING; Phase 1 requires explicit authorization.
+Updated November 28, 2026 (Africa/Kigali). Current phase: **Phase 0 — IMPLEMENTED** (implementation complete). GitHub integration: **BLOCKED** at merge; PR #1 is open, reviewed and pushed. Phases 1–12 remain PENDING; Phase 1 requires explicit authorization.
 
 ## Authoritative scope and decisions
 The final scope confirmation resolves the missing-master blocker. Do not request that earlier prompt again. PORTFOLIO_MASTER_SPEC.md stores the complete confirmation, detailed design/RP requirements and workflow; use repository documents in future sessions. Missing screenshots/status/security evidence remains in CONTENT_REVIEW.md for later phases, not Phase 0 blockers. Preserve nine stored projects and authentic content; verify identity before any merge, keep drafts where uncertain, and avoid duplicate records. Future branches use portfolio-v2-phase-NN-description to avoid a conflict with the existing portfolio-v2 ref.
@@ -71,7 +71,7 @@ Apply AGENTS.md's eleven steps: prepare/synchronize verified default branch; sco
 ## GitHub integration tracker
 | Phase | Branch | Implementation commit | Push | PR URL / status | Merge |
 | --- | --- | --- | --- | --- | --- |
-| 0 | portfolio-v2 | Pending commit | PENDING | None / PENDING | BLOCKED: deployment trigger not yet verified |
+| 0 | portfolio-v2 | 08741bfa4e58bd17c56f6297e53aae87566d1b14 | IMPLEMENTED | https://github.com/K-Shalom/Portfolio/pull/1 / UNDER REVIEW | BLOCKED: failed Cloudflare check and production deployment authorization |
 | 1 | portfolio-v2-phase-01-security (planned) | None | PENDING | None / PENDING | PENDING |
 | 2 | portfolio-v2-phase-02-architecture (planned) | None | PENDING | None / PENDING | PENDING |
 | 3 | portfolio-v2-phase-03-design-system (planned) | None | PENDING | None / PENDING | PENDING |
@@ -85,9 +85,16 @@ Apply AGENTS.md's eleven steps: prepare/synchronize verified default branch; sco
 | 11 | portfolio-v2-phase-11-testing (planned) | None | PENDING | None / PENDING | PENDING |
 | 12 | portfolio-v2-phase-12-documentation (planned) | None | PENDING | None / PENDING | PENDING |
 
-Repository: https://github.com/K-Shalom/Portfolio.git (origin); GitHub confirms actual default main. Fetch completed; local main and origin/main were synchronized at 0cb128a. Phase 0 stays on portfolio-v2. Only scoped documentation will be staged. Commit metadata avoids self-reference: initial implementation SHA may be recorded by a later tracker-only commit; latest exact SHA is reported in the PR/final response.
+Repository: https://github.com/K-Shalom/Portfolio.git (origin); GitHub confirms actual default main. Fetch completed; local main and origin/main were synchronized at 0cb128a. Phase 0 stays on portfolio-v2. Seven scoped documents were committed and pushed. Commit metadata avoids self-reference: initial implementation SHA may be recorded by a later tracker-only commit; latest exact SHA is reported in the PR/final response.
 
 ## Known issues, blockers and next steps
 No Phase 0 implementation blocker remains. Application risks remain: unprotected writes, weak auth/session, exposed provider key when configured, permissive CORS, input/email validation, JSON durability and local-write error behavior. Issue owners are in the plan; no claim application is fully secure or fully tested. Existing lint fails; no automated suite; current online dependency/security and browser/accessibility evaluation remain later work. Content evidence tasks remain in CONTENT_REVIEW.md.
 
-GitHub merge gate: automatic Render/Cloudflare production deployment behavior is unknown; repository has no deployment manifest or Actions workflow. Inspect PR checks and available deployment evidence. Do not merge without confirming deployment authorization/safety, actual checks, approvals and no conflicts. Complete authorized commit/push/PR and report actual status; if merge blocked, remain on phase branch without falsely claiming synchronized merged state. Next phase is Phase 1, only after explicit owner authorization.
+GitHub merge gate: Cloudflare Pages check on implementation commit 08741bf completed with failure (Build failed); underlying provider build log was not retrieved, so root cause is unknown. GitHub Pages API confirms legacy deployment from main:/ and prior successful dynamic pages build/deployment runs. Returned published URL is http://shalomk.me/Portfolio/. Therefore merging can trigger publishing, and production deployment is not authorized. Render/Cloudflare production branch settings remain unverified. No merge or post-merge default-branch synchronization performed; remain on portfolio-v2. Next phase is Phase 1, only after explicit owner authorization.
+
+## PR review and integration evidence
+PR: https://github.com/K-Shalom/Portfolio/pull/1, open, base main, head portfolio-v2. Reviewed implementation SHA 08741bfa4e58bd17c56f6297e53aae87566d1b14. GitHub lists exactly the seven intended added documents and no source/data changes; mergeable true, mergeable state unstable. No human reviews, inline comments, conversation comments or requested reviewers were present at inspection. Branch protection API returned Branch not protected; rulesets and repository webhooks were empty. These facts do not establish deployment safety or independent approval. No additional automated code reviewer is configured in the inspected PR checks; no paid integration was enabled.
+
+Cloudflare Pages check: completed/failure, output title Building and summary Build failed. GitHub Pages source main:/ with legacy builds and prior successful dynamic deployment runs is confirmed despite no checked-in workflow. Merging is blocked by failed check plus production publishing implications; do not bypass or trigger deployment.
+
+The GitHub connector returned 403 Resource not accessible by integration on PR creation. Existing Git HTTPS authentication successfully created and inspected the PR without exposing credentials. Implementation commit is 08741bf; this tracker/review evidence is committed separately, with the latest exact metadata commit reported in the PR/final report to avoid self-reference. Final branch synchronization means local phase branch matches origin/portfolio-v2; it does not mean the PR is merged.
