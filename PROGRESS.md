@@ -39,7 +39,7 @@ The final scope confirmation resolves the missing-master blocker. Do not request
 - [x] Dedicated documentation self-review completed; blocking documentation findings resolved. Independent approval not fabricated.
 
 ## Changed files
-Only the seven Markdown documents above. Runtime code, package manifests, lockfiles and stored data unchanged. Ignored dist output from baseline build is not included.
+Original implementation: the seven Markdown documents above. Integration recovery adds DEPLOYMENT_REVIEW.md locally and updates CODE_REVIEW.md/PROGRESS.md; remote PR remains at the seven-file head until an authorized push. Runtime code, package manifests, lockfiles and stored data unchanged. Ignored dist output from baseline build is not included.
 
 ## Actual baseline test results
 
@@ -98,3 +98,14 @@ PR: https://github.com/K-Shalom/Portfolio/pull/1, open, base main, head portfoli
 Cloudflare Pages check: completed/failure, output title Building and summary Build failed. GitHub Pages source main:/ with legacy builds and prior successful dynamic deployment runs is confirmed despite no checked-in workflow. Merging is blocked by failed check plus production publishing implications; do not bypass or trigger deployment.
 
 The GitHub connector returned 403 Resource not accessible by integration on PR creation. Existing Git HTTPS authentication successfully created and inspected the PR without exposing credentials. Implementation commit is 08741bf; this tracker/review evidence is committed separately, with the latest exact metadata commit reported in the PR/final report to avoid self-reference. Final branch synchronization means local phase branch matches origin/portfolio-v2; it does not mean the PR is merged.
+
+## GitHub integration recovery — November 28, 2026
+Implementation remains IMPLEMENTED; integration remains BLOCKED. DEPLOYMENT_REVIEW.md records verified build log/settings/domains and hosting architecture. Root cause established: Cloudflare selects Bun because of existing zero-byte bun.lock, runs bun install --frozen-lockfile and fails with Missing lockfile version before the configured npm command. Node 22.23.4, npm 10.9.9, Bun 1.4.4. The lockfile is also empty on origin/main; no evidence documentation introduced the failure. No application/build-file correction applied; recommendations require approval.
+
+Cloudflare Pages portfolio serves active SSL custom domains shalomk.me and www.shalomk.me, project hostname portfolio-csd.pages.dev. Production branch main, automatic deployments Enabled, include watch path *. Branch portfolio-v2 is Preview. Production build variables point to Render backend; failed Preview has no environment variables. Actual encrypted secret values were not revealed. GitHub Pages separately publishes main:/ using legacy builds; its API metadata does not establish apex origin. Render live health returned 200, but Render auto-deploy settings remain unknown. Prior HTTP/DNS evidence and current signed-in settings are differentiated in deployment review.
+
+Refreshed PR #1 head c3cf4c8: open, not merged, mergeable true/unstable; exactly seven Markdown files; no source/dependency/data changes; no independent reviews/requests or inline comments. Cloudflare check 140784036521 remains completed/failure. Protection returns Branch not protected; no rulesets. All Phase 0 implementation criteria still met; passing-check and production-deployment gates are not.
+
+Recovery verification PASS: full seven-document credential/private-key pattern scan, 13 phases with all planning fields, unchanged stored content (nine projects); recovery document accurately distinguishes verified facts, unknown Render settings and proposed fixes. Runtime lint/build baseline retained without unnecessary rerun; provider failed before compilation. Complete recovery diff reviewed in CODE_REVIEW.md.
+
+Delivery: local documentation-only recovery commit, no push and no deployment retry because automatic Preview publishing would result if a build succeeds. Remote PR stays open at c3cf4c8; local branch will be ahead of origin by the recovery commit. No merge commit exists, no post-merge synchronization performed. PR description can carry the diagnosis without a branch push. Recommended next actions: approve one minimal dependency-install correction, authorize a validation Preview build/deployment, and resolve confirmed production-trigger authorization plus Render settings before merge. No Phase 1 work.
