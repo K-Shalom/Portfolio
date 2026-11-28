@@ -1,6 +1,6 @@
 # Portfolio V2 progress
 
-Updated November 28, 2026 (Africa/Kigali). Current phase: **Phase 0 — IMPLEMENTED** (implementation complete). GitHub integration: **UNDER REVIEW**; npm correction Preview passed; PR #1 remains open awaiting final merge/production authorization and other required checks/approvals. Phases 1–12 remain PENDING; Phase 1 requires explicit authorization.
+Updated November 28, 2026 (Africa/Kigali). **Phase 0 COMPLETED — implementation IMPLEMENTED; GitHub integration MERGED; Production deployment verified successful.** PR #1 squash merge: 9b73e5c7b42c9535661c102f1ec2648efea84a52. Phases 1–12 remain PENDING; Phase 1 is not authorized.
 
 ## Authoritative scope and decisions
 The final scope confirmation resolves the missing-master blocker. Do not request that earlier prompt again. PORTFOLIO_MASTER_SPEC.md stores the complete confirmation, detailed design/RP requirements and workflow; use repository documents in future sessions. Missing screenshots/status/security evidence remains in CONTENT_REVIEW.md for later phases, not Phase 0 blockers. Preserve nine stored projects and authentic content; verify identity before any merge, keep drafts where uncertain, and avoid duplicate records. Future branches use portfolio-v2-phase-NN-description to avoid a conflict with the existing portfolio-v2 ref.
@@ -71,7 +71,7 @@ Apply AGENTS.md's eleven steps: prepare/synchronize verified default branch; sco
 ## GitHub integration tracker
 | Phase | Branch | Implementation commit | Push | PR URL / status | Merge |
 | --- | --- | --- | --- | --- | --- |
-| 0 | portfolio-v2 | 08741bfa4e58bd17c56f6297e53aae87566d1b14 | IMPLEMENTED | https://github.com/K-Shalom/Portfolio/pull/1 / UNDER REVIEW | BLOCKED: merge prohibited pending final authorization; corrected Preview passes |
+| 0 | portfolio-v2 (merged); main synchronized | 08741bfa4e58bd17c56f6297e53aae87566d1b14; merge 9b73e5c7b42c9535661c102f1ec2648efea84a52 | IMPLEMENTED | https://github.com/K-Shalom/Portfolio/pull/1 / MERGED | MERGED; Production PASS |
 | 1 | portfolio-v2-phase-01-security (planned) | None | PENDING | None / PENDING | PENDING |
 | 2 | portfolio-v2-phase-02-architecture (planned) | None | PENDING | None / PENDING | PENDING |
 | 3 | portfolio-v2-phase-03-design-system (planned) | None | PENDING | None / PENDING | PENDING |
@@ -133,3 +133,20 @@ Fresh audit classification: 21 package entries, 6 direct/15 transitive, 9 modera
 Production consequence confirmed by signed-in Cloudflare settings: main is production branch, automatic deployments Enabled, custom domains shalomk.me/www.shalomk.me Active. Merging main triggers production build/deployment. GitHub Pages also publishes main; Render auto-deploy settings remain unverified. Current instruction explicitly prohibits merge until production deployment approval, then only with mandatory checks/reviews satisfied. No merge, production deployment, DNS/environment/hosting setting change or Phase 1 work performed. No merge SHA exists. Ready for authorization consideration, not unconditionally READY TO MERGE.
 
 After explicit production approval, revalidate the exact PR head/checks/reviews/rules and supported squash strategy; merge only if gates hold, confirm GitHub merged state/SHA, observe the resulting Cloudflare Production deployment and logs, synchronize local main with origin/main, commit/synchronize final progress evidence and report. Phase 1 still needs separate authorization. Current documentation preparation is self-reviewed; refreshed preview status must be checked after publishing it.
+
+## Final Phase 0 completion — authoritative latest status
+
+The owner explicitly approved PR #1 merge and its automatic production deployment to shalomk.me/www.shalomk.me. This approval resolves the previous merge/deployment gate for Phase 0 only; it does not authorize Phase 1 or future production changes.
+
+- Exact pre-merge head: 661e593cc63bc1e5cd19bed4e72b21f2c3737678, base main, open/mergeable/clean; Cloudflare Pages completed/success. No required named legacy status context existed (combined pending had zero contexts).
+- Rechecked protection: main not protected, repository rulesets and active main rules empty. Requested reviewers/reviews/inline review comments empty. No repository-mandated independent approval requirement found; Codex self-review and owner approval are not represented as independent review.
+- Used authenticated GitHub CLI gh pr merge --squash with --match-head-commit; no admin/bypass option. GitHub confirms PR state MERGED, mergedAt 2026-11-28T06:58:08Z (08:58:08 Africa/Kigali), merge SHA **9b73e5c7b42c9535661c102f1ec2648efea84a52**.
+- Reviewed final scope: eight Markdown documents plus removal of the empty bun.lock. Runtime source, package.json, package-lock.json and stored data unchanged. npm remains package manager. Complete scope/inventory/phase planning, deployment diagnosis and security backlog preserved.
+- Cloudflare **Production**, branch main, exact merge SHA, deployment **bbedd1f6-99c9-48e0-970f-f347bb805166**: success, 31 seconds. Log confirms npm clean-install, configured npm install/build, Vite 8.1.5, 383 modules, build 482 ms, assets published and successful deployment. Aliases include shalomk.me and www.shalomk.me. URL: https://bbedd1f6.portfolio-csd.pages.dev/ .
+- Live read-only smoke checks PASS: both HTTPS custom domains returned 200 with portfolio title; deployed JS index-DJ8RJQY3.js and CSS index-D6uWWxTJ.css returned 200. Browser rendered existing portfolio, navigation to Engineering Projects worked and stored project content appeared. No form submission, admin mutation or paid AI call made.
+- Render health and all four collection GET endpoints returned 200; counts remain projects 9, articles 3, certificates 4, events 3. This verifies public availability/content delivery, not comprehensive end-to-end security/accessibility or email/AI functionality.
+- Fetched origin and fast-forwarded local main to merge SHA; no force/reset. Final tracker-only commit is synchronized on main separately so the confirmed merge SHA and production results are retained in Git without a self-referential hash. Old portfolio-v2 branch retained as a historical reference; squash history means it is not removed with an unsafe forced deletion.
+
+Remaining known issues: 21 npm affected package entries (6 direct/15 transitive; 4 critical, 8 high, 9 moderate), triage/actions in DEPLOYMENT_REVIEW.md assigned to Phase 1 without breaking automatic upgrades. Three pre-existing Timeline.jsx lint errors remain Phase 6 work (earlier if touched). No new application regression was observed in this scoped smoke check; application is not claimed fully secure or fully tested. Historical blocked/open statements above describe earlier checkpoints and are superseded by this completion entry.
+
+**Next phase: Phase 1 — Critical security improvements, PENDING separate explicit owner authorization. Stop here.**
