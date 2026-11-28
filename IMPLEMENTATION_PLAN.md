@@ -146,7 +146,7 @@ All 19 named projects, all technical skill categories/items and all 16 Developer
 
 - **Objectives:** Close exposed administrative writes and provider-secret risks while preserving public functionality.
 
-- **Tasks:** Enforce shared server auth on every mutation; secure single-use code/session lifecycle, logout/expiry and attempt/request limits; restrict CORS; server-side AI provider boundary; validate types/lengths/URLs/allowed fields; escape contact HTML; bound payloads and abuse; consistent safe errors/config. Assess credential rotation if a public provider key was deployed; follow confirmed master security requirements.
+- **Tasks:** Enforce shared server auth on every mutation; secure single-use code/session lifecycle, logout/expiry and attempt/request limits; restrict CORS; server-side AI provider boundary; validate types/lengths/URLs/allowed fields; escape contact HTML; bound payloads and abuse; consistent safe errors/config. Assess credential rotation if a public provider key was deployed; follow confirmed master security requirements. Treat the 21 package findings (6 direct, 15 transitive; 4 critical, 8 high, 9 moderate) in DEPLOYMENT_REVIEW.md as Phase 1 priorities; assess runtime/build reachability, use reviewed compatible fixes, and require explicit compatibility review for major upgrades/downgrades. Do not run automatic breaking audit fixes.
 
 - **Dependencies:** Completed Phase 0 and authorization to proceed; email/provider test configuration.
 

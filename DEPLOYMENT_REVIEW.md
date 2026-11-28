@@ -87,3 +87,35 @@ Correction self-review PASS for the authorized minimal scope: only zero-byte bun
 Cloudflare Preview PASS for correction abd387a78a2027b553780549d24fb2005bfd61c2, deployment 03cb7a4f-7f7b-4c58-9009-a8537c27b87e. Signed-in complete log confirms Node 22.23.4/npm 10.9.9 and automatic npm clean-install --progress=false (325 packages), followed by existing npm install --legacy-peer-deps (31 packages removed) and npm run build. Vite 8.1.5 transformed 383 modules, build succeeded (409 ms), assets published and deployment success (31 s total). No Bun selected and no installation override/account-setting change required. Platform-specific package counts differ from local npm ci; both installations/builds passed. Preview: https://03cb7a4f.portfolio-csd.pages.dev/ (alias https://portfolio-v2.portfolio-csd.pages.dev/).
 
 The dependency-install failure is resolved. Self-review confirms the minimal lockfile correction plus necessary documentation only, with npm package-lock.json unchanged. Prior investigation wording describes historical states; this result supersedes the failed-check/no-push state for the corrected commit. PR remains open and must not be merged under the latest instruction. Ready for final merge authorization review subject to refreshed checks/required approvals, existing lint and dependency findings, and explicit production-deployment authorization. Independent review has not been fabricated. Production main remains unmodified; Phase 1 remains unauthorized.
+
+## Final merge preparation — dependency security backlog
+
+Reviewed November 28, 2026. Fresh online npm audit confirms **21 affected package entries: 9 moderate, 8 high, 4 critical; 6 direct and 15 transitive**. These counts include inherited vulnerability chains; they are not 21 distinct CVEs or proof that every advisory is exploitable in production. No dependency/lockfile changes or automated upgrades performed. Phase 1 security assessment remains separately unauthorized.
+
+| Package | Relationship | Audit severity | Phase 1 priority / action |
+| --- | --- | --- | --- |
+| proxy-addr | Transitive | Critical | First triage server IP/trust-proxy exposure; evaluate compatible patched resolution and regression tests. |
+| happy-dom | Transitive | Critical | First triage build-time code execution/untrusted DOM exposure through Pigment/WyW chain. |
+| @wyw-in-js/transform | Transitive | Critical | Trace inherited happy-dom/other findings through CSS build tooling; assess actual usage. |
+| @pigment-css/react | Transitive | Critical | Trace WyW chain and necessity of Pigment integration before choosing remediation. |
+| nodemailer | Direct | High | Triage mail/parser/TLS advisories; verify actual runtime usage (current contact implementation uses Resend); consider removal if unused, otherwise planned tested migration. |
+| vite | Direct (devDependency) | High | Triage dev/middleware exposure and compatible patch; verify production server's import/runtime strategy. |
+| body-parser | Transitive | High | Triage backend request parsing/DoS exposure; compatible dependency resolution and API regression tests. |
+| brace-expansion | Transitive | High | Trace multiple toolchain nodes and pathological expansion reachability; compatible patch review. |
+| js-yaml | Transitive | High | Determine parser exposure/untrusted inputs and compatible fix. Distinct from direct package yaml. |
+| nanoid | Transitive | High | Trace caller usage of custom generators; compatible patch review. |
+| source-map-js | Transitive | High | Assess source-map processing reachability; compatible patch review. |
+| zod | Transitive | High | Trace validation callers and input limits; compatible patch review. |
+| @mui/icons-material | Direct | Moderate | Inherited MUI/Pigment chain; coordinate remediation with UI dependency compatibility. |
+| @mui/material | Direct | Moderate | Inherited Pigment chain; audit-proposed major downgrade is not preapproved. |
+| @mui/material-pigment-css | Direct | Moderate | Inherited Pigment/WyW chain; establish usage before removal/migration. |
+| eslint | Direct (devDependency) | Moderate | Inherited minimatch chain; review compatible tooling patch. |
+| @eslint/config-array | Transitive | Moderate | Inherited minimatch chain through lint tooling. |
+| @wyw-in-js/processor-utils | Transitive | Moderate | Inherited WyW/shared chain; resolve together with Pigment. |
+| @wyw-in-js/shared | Transitive | Moderate | Inherited minimatch chain; resolve together with Pigment. |
+| minimatch | Transitive | Moderate | Multiple build/lint nodes; review all affected paths. |
+| qs | Transitive | Moderate | Assess backend query/parser reachability and request limits; compatible resolution/tests. |
+
+Remediation rules for Phase 1: assess runtime versus build/dev reachability, actual advisory affected ranges and installed dependency paths; prioritize critical/high issues without ignoring moderate server risks. Prefer reviewed compatible patches; where parent changes are necessary, evaluate removing unused integrations or a deliberate tested migration. npm's proposed fixes for MUI/Pigment/WyW/happy-dom/minimatch include a semver-major MUI downgrade to 5.18.0, and nodemailer proposes a major upgrade; neither is an automatically safe fix. Do not run npm audit fix --force, blindly accept overrides, regenerate lockfiles wholesale or treat fixAvailable=true as compatibility proof. Preserve a reproducible npm lock, rerun audit and meaningful build/API/UI/security checks after each approved change, and document any risk left unresolved. Sources: actual npm audit --json output and repository package.json/package-lock.json. Advisory root example: https://github.com/advisories/GHSA-37j7-fg3j-429f ; server proxy advisory: https://github.com/advisories/GHSA-jqcg-44mw-7w3h .
+
+The three pre-existing Timeline.jsx lint errors remain tracked for Phase 6 (earlier if touched): unused useEffect at line 1 and two react-hooks/immutability reports at line 164. They have not been fixed, waived as passing, or conflated with new regressions.
