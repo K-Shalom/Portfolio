@@ -1,3 +1,4 @@
+import { apiRequest } from '../services/api';
 import { useState, useCallback } from 'react';
 import { useScrollTrigger } from '../hooks/useScrollTrigger';
 import { useAntigravity } from '../hooks/useAntigravity';
@@ -101,17 +102,7 @@ export default function Contact() {
     setLoading(true);
 
     try {
-      const response = await fetch('https://portfolio-backend-dvn5.onrender.com/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send message');
-      }
+      await apiRequest('/api/send-email', { method: 'POST', body: form });
 
       setSent(true);
       setTimeout(() => setSent(false), 4000);

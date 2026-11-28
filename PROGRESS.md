@@ -1,6 +1,6 @@
 # Portfolio V2 progress
 
-Updated November 28, 2026 (Africa/Kigali). **Phase 0 COMPLETED — implementation IMPLEMENTED; GitHub integration MERGED; Production deployment verified successful.** PR #1 squash merge: 9b73e5c7b42c9535661c102f1ec2648efea84a52. Phases 1–12 remain PENDING; Phase 1 is not authorized.
+Updated November 28, 2026 (Africa/Kigali). Phase 0 COMPLETED and synchronized via merged PRs #1/#2. **Current phase: Phase 1 — IMPLEMENTED, UNDER REVIEW**, branch portfolio-v2-phase-01-security. Implementation, tests and PR review authorized; merge/production deployment NOT authorized. Phase 2 remains PENDING.
 
 ## Authoritative scope and decisions
 The final scope confirmation resolves the missing-master blocker. Do not request that earlier prompt again. PORTFOLIO_MASTER_SPEC.md stores the complete confirmation, detailed design/RP requirements and workflow; use repository documents in future sessions. Missing screenshots/status/security evidence remains in CONTENT_REVIEW.md for later phases, not Phase 0 blockers. Preserve nine stored projects and authentic content; verify identity before any merge, keep drafts where uncertain, and avoid duplicate records. Future branches use portfolio-v2-phase-NN-description to avoid a conflict with the existing portfolio-v2 ref.
@@ -9,7 +9,7 @@ The final scope confirmation resolves the missing-master blocker. Do not request
 | Phase | Name | Implementation | Acceptance | Tests | Code review |
 | --- | --- | --- | --- | --- | --- |
 | 0 | Repository inspection and baseline | IMPLEMENTED | IMPLEMENTED | Documentation verified; baseline lint failure recorded | IMPLEMENTED (self-review) |
-| 1 | Critical security improvements | PENDING | PENDING | PENDING | PENDING |
+| 1 | Critical security improvements | IMPLEMENTED | UNDER REVIEW | 12 tests/build/bundle PASS; lint baseline only; audit 0 | Self-review completed |
 | 2 | Modular architecture and data persistence | PENDING | PENDING | PENDING | PENDING |
 | 3 | Indigo design system and global layout | PENDING | PENDING | PENDING | PENDING |
 | 4 | Homepage renovation | PENDING | PENDING | PENDING | PENDING |
@@ -72,7 +72,7 @@ Apply AGENTS.md's eleven steps: prepare/synchronize verified default branch; sco
 | Phase | Branch | Implementation commit | Push | PR URL / status | Merge |
 | --- | --- | --- | --- | --- | --- |
 | 0 | portfolio-v2 (merged); main synchronized | 08741bfa4e58bd17c56f6297e53aae87566d1b14; merge 9b73e5c7b42c9535661c102f1ec2648efea84a52 | IMPLEMENTED | https://github.com/K-Shalom/Portfolio/pull/1 / MERGED | MERGED; Production PASS |
-| 1 | portfolio-v2-phase-01-security (planned) | None | PENDING | None / PENDING | PENDING |
+| 1 | portfolio-v2-phase-01-security | f1d11acf3ad95100a5dba9d4610a9b7792f574fe | PUSHED | [PR #3](https://github.com/K-Shalom/Portfolio/pull/3) / OPEN, UNDER REVIEW | NOT AUTHORIZED |
 | 2 | portfolio-v2-phase-02-architecture (planned) | None | PENDING | None / PENDING | PENDING |
 | 3 | portfolio-v2-phase-03-design-system (planned) | None | PENDING | None / PENDING | PENDING |
 | 4 | portfolio-v2-phase-04-homepage (planned) | None | PENDING | None / PENDING | PENDING |
@@ -153,3 +153,36 @@ Remaining known issues: 21 npm affected package entries (6 direct/15 transitive;
 
 ## Completion record publication
 The approved merge/production deployment and live verification are complete. An additional production-triggering main push was rejected by automatic approval review. To avoid triggering production, this tracker-only completion record is synchronized via a separate documentation branch and PR for later review; it is not represented as already incorporated into main. No attempt to bypass the rejection or alter deployment controls was made.
+
+## Phase 1 start
+Read repository specifications and security findings; verified clean synchronized main at 51e632e, fetched origin and created portfolio-v2-phase-01-security. No Phase 0 repetition, production changes or Phase 2 work.
+
+## Phase 1 security implementation — November 28, 2026
+
+Scope: owner-authorized implementation on portfolio-v2-phase-01-security. No merge, production deployment, credential rotation, DNS/hosting/environment change or Phase 2 work.
+
+Implemented: keyed-hash single-use cryptographic OTPs (10 minutes, five attempts, cooldown/rates); memory-only 30-minute revocable bearer sessions and logout; shared server auth on all four collection mutations/draft reads; strict field/type/length/date/list/URL/ID validation and no mass assignment; exact-origin CORS without ambient cookies; API/static-frontend headers/CSP; bounded payloads, rates, contact HTML/header escaping/deduplication; server-only fixed-endpoint AI with public context, timeout/token/history/IP/global limits and safe fallback; generic errors and no provider/token/code logging; client failure handling without fake saved state or draft/token caches. Minimal app factory/security files enable isolated testing, not a Phase 2 feature-module renovation.
+
+Dependency assessment: fresh online baseline 21 (6 direct/15 transitive; 4 critical, 8 high, 9 moderate). Removed verified unused Pigment/OpenRouter-agent/nodemailer/yaml integrations and updated compatible resolutions within framework majors. Final online npm audit: zero known advisories. Per-package installed versions, dependency chains, exposure and decisions are in DEPENDENCY_SECURITY_REVIEW.md. No force fixes or automatic breaking downgrade/upgrade. npm/package-lock preserved; data_store.json unchanged with nine original projects.
+
+Verification: npm ci PASS (295 installed on first revised lock); justified subsequent compatible update changed three packages. npm test PASS, 12 scenarios including actual local HTTP API behavior and mocked client bearer/session/error handling. Mock mail/AI, injected clock and isolated persistence; no real messages/provider costs/data writes. Production build PASS (Vite 8.4, 384 modules). Client bundle credential-pattern scan PASS, plus build guard rejection of a fake legacy VITE provider key without revealing it. npm run lint has exactly the three baseline Timeline.jsx errors (unused useEffect, two immutability errors), zero new errors/warnings. Six local HTTP smoke endpoints returned 200; content counts 9/3/4/3. Real browser automation timed out twice, so no fresh visual/manual browser authentication pass is claimed; client transport and backend behavior have automated coverage. HMR port warning during Vite-based transport test is dev-only and did not fail tests; local regression server cleanup tracked separately.
+
+Release prerequisites: do NOT merge yet. On Render verify ADMIN_EMAIL, verified MAIL_FROM, RESEND_API_KEY, NODE_ENV production, exact ALLOWED_ORIGINS and verified TRUST_PROXY_HOPS; move OpenRouter key to server-only OPENROUTER_API_KEY with provider budget. On Cloudflare remove VITE_OPENROUTER_API_KEY/VITE_WEB3FORMS_KEY; keep VITE_API_BASE_URL and frontend CSP connect-src aligned to API host. Build intentionally rejects legacy VITE provider-key variables. Owner-authorized rotation of previously browser-exposed OpenRouter credential is required before production reuse; no values revealed or rotated here. Preview frontend alone uses the currently deployed old API unless a secured staging API is configured, so does not prove new server deployed. Deploy backend first, then frontend; old admin clients/new backend require refresh and login, new client/old backend fails closed without token. Public reads/contact contracts retained. Single-instance in-memory limits/sessions reset on restart; provider-side budget/coordinated state needed before scaling. See SECURITY.md for exact controls/limits, configuration and safe rollback.
+
+## Phase 1 acceptance and delivery
+Implementation: IMPLEMENTED for PR review. Acceptance: auth/session/mutation/draft/input/origin/rate/error/provider boundaries verified by automated tests; final manual visual/staging browser check remains a reported limitation. Tests: 12 PASS; build/bundle PASS; audit 21→0; lint baseline 3 errors only. Code review: self-review completed, not independent approval. Push/PR/check URLs to be recorded after actual publication. Merge: NOT AUTHORIZED. Phase 2: PENDING. No production data or settings changed.
+
+Phase 1 CI: pinned official checkout/setup-node actions, read-only contents permission, no persisted checkout credentials or provider secrets. Runs clean install, 12 mocked tests, build, bundle inspection, online audit and an explicit exact-baseline lint comparison. npm run lint:phase1 fails on any new diagnostic or baseline drift and reports the three unchanged Timeline.jsx errors; it does not claim full npm run lint passes. The full lint command remains a recorded baseline failure, as expressly allowed by the owner. No production deployment job is added. Local regression server port 3015 was stopped after read-only smoke tests.
+
+
+## Phase 1 published PR review
+Implementation commit f1d11acf3ad95100a5dba9d4610a9b7792f574fe pushed to portfolio-v2-phase-01-security. PR #3: https://github.com/K-Shalom/Portfolio/pull/3, OPEN and MERGEABLE. Reviewed all 27 changed files; stored data, seed files and Timeline.jsx unchanged. Both push and PR GitHub security runs completed successfully (46126463807 and 46126517647): clean install, tests, lint baseline comparison, build, bundle scan and online audit. Cloudflare Preview succeeded for that commit, deployment 0deb0c1b-e09a-46d8-9f59-106c6844c0b6, https://0deb0c1b.portfolio-csd.pages.dev . Read-only preview HTTP returned 200 with expected CSP and DENY framing. No browser visual pass is claimed.
+
+Main protection API reports Branch not protected (404); repository rulesets empty; reviews/review requests empty. No mandatory reviewer found, and no independent approval claimed. GitHub notes the pinned v4 actions use a deprecated Node 20 action runtime automatically run on Node 24; application CI explicitly uses Node 22 and passes. This informational action maintenance item is not a failed check. A documentation evidence update follows the implementation commit; latest checks must be refreshed after its push. Release remains UNDER REVIEW, not ready for production: staging browser/operator checks, approved server/frontend configuration, exposed-key rotation and explicit merge/production authorization remain required. No merge SHA; main untouched. Phase 2 not started.
+
+## Phase 1 review corrections
+Status: IMPLEMENTED / UNDER REVIEW on portfolio-v2-phase-01-security, existing PR #3. Explicit writable payloads now cover all four collections and all create/edit handlers, preserving supported metadata including certificate verified. Current server schema already accepted verified; strict server field/type validation remains intact. Logout distinguishes confirmed server revocation from local-only sign-out and displays persistent feedback on the sign-in screen.
+
+Added fixture-backed regression coverage for all 19 actual stored records across projects/articles/certificates/events, including authenticated create/edit/delete, metadata preservation, unknown-field rejection and original-store preservation. Complete suite: 17 PASS. Build, lint-baseline comparison (three existing Timeline.jsx errors only), bundle credential scan and online audit (zero known advisories) PASS. No dependency or stored data changes. Dedicated review in CODE_REVIEW.md. Corrective commit/check details are reported in PR #3/final response to avoid self-referential tracker commits. No merge or production deployment; Phase 2 PENDING.
+
+Release is NOT READY: Render configuration verification, authorized removal of legacy Cloudflare production VITE provider-secret variables, authorized exposed-credential rotation, an isolated staging backend, browser verification of login/logout/CMS/contact/theme/navigation, and confirmation of backend-first deployment/secure rollback are all still required. Owner/operator access or separate authorization is needed for those account/configuration/rotation tasks; this correction does not grant it. No production settings changed or secrets rotated.

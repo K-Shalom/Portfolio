@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { apiRequest, setAdminSession, logoutAdmin } from '../services/api';
+import { cmsPayload } from '../services/cmsPayload';
 
-// Dynamic API Base URL from environment variable
-const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
 
 export default function AdminModal({ isOpen, onClose, cms }) {
   const [authenticated, setAuthenticated] = useState(false);
@@ -72,6 +72,12 @@ export default function AdminModal({ isOpen, onClose, cms }) {
 
   const [statusMsg, setStatusMsg] = useState('');
 
+  useEffect(() => {
+    const expire = () => { cms.clearPrivateData(); setAuthenticated(false); setVerifyError('Your session expired. Please sign in again.'); void cms.refreshAll(); };
+    window.addEventListener('admin-session-expired', expire);
+    return () => window.removeEventListener('admin-session-expired', expire);
+  }, [cms]);
+  const runAction = async action => { try { await action(); } catch (error) { setStatusMsg(error.message || 'The operation failed. Nothing was saved.'); } };
   if (!isOpen) return null;
 
   const handleRequestCode = async () => {
@@ -79,20 +85,17 @@ export default function AdminModal({ isOpen, onClose, cms }) {
     setRequestMsg('');
     setVerifyError('');
     try {
-      const res = await fetch(`${API_BASE}/api/request-admin-code`, { method: 'POST' });
-      const data = await res.json();
+      const data = await apiRequest('/api/request-admin-code', { method: 'POST', body: {} });
       setSendingCode(false);
       setCodeRequested(true);
-      if (data.demoCode) {
-        setPasscode(data.demoCode);
-      }
+
       if (data.message) {
         setRequestMsg(data.message);
       } else {
         setRequestMsg('Verification passcode requested!');
       }
     } catch (err) {
-      console.error('Error requesting admin code:', err);
+      void err;
       setSendingCode(false);
       setVerifyError('Could not request passcode. Please try again.');
     }
@@ -103,44 +106,39 @@ export default function AdminModal({ isOpen, onClose, cms }) {
     if (!passcode) return;
     setVerifyError('');
     try {
-      const res = await fetch(`${API_BASE}/api/verify-admin-code`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: passcode }),
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
+      const data = await apiRequest('/api/verify-admin-code', { method: 'POST', body: { code: passcode } });
+      if (data.success && /^[a-f0-9]{64}$/.test(data.token) && data.expiresAt > Date.now()) {
+        setAdminSession({ token: data.token, expiresAt: data.expiresAt });
+        setPasscode('');
+        void cms.refreshAll();
         setAuthenticated(true);
         setVerifyError('');
       } else {
         setVerifyError(data.error || 'Invalid or expired passcode. Please request a new code.');
       }
     } catch (err) {
-      console.error('Error verifying code:', err);
+      void err;
       setVerifyError('Server verification error. Please try again.');
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const message = await logoutAdmin();
+    cms.clearPrivateData();
+    void cms.refreshAll();
     setAuthenticated(false);
     setPasscode('');
     setCodeRequested(false);
     setRequestMsg('');
     setVerifyError('');
-    setStatusMsg('Logged out of CMS admin');
-    setTimeout(() => setStatusMsg(''), 2000);
+    setStatusMsg(message);
   };
 
   // --- CREATE HANDLERS ---
   const handleAddProject = async (e) => {
     e.preventDefault();
     if (!projectForm.title) return;
-    await cms.addProject({
-      ...projectForm,
-      tags: typeof projectForm.tags === 'string' ? projectForm.tags.split(',').map((t) => t.trim()).filter(Boolean) : projectForm.tags,
-      languages: typeof projectForm.languages === 'string' ? projectForm.languages.split(',').map((l) => l.trim()).filter(Boolean) : projectForm.languages,
-      categories: typeof projectForm.categories === 'string' ? projectForm.categories.split(',').map((c) => c.trim()).filter(Boolean) : projectForm.categories,
-    });
+    await cms.addProject(cmsPayload('projects', projectForm));
     setProjectForm({
       title: '',
       coverImage: '',
@@ -153,16 +151,12 @@ export default function AdminModal({ isOpen, onClose, cms }) {
       featured: false,
     });
     setStatusMsg('✓ Project published successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const handleAddArticle = async (e) => {
     e.preventDefault();
     if (!articleForm.title) return;
-    await cms.addArticle({
-      ...articleForm,
-      tags: typeof articleForm.tags === 'string' ? articleForm.tags.split(',').map((t) => t.trim()).filter(Boolean) : articleForm.tags,
-    });
+    await cms.addArticle(cmsPayload('articles', articleForm));
     setArticleForm({
       title: '',
       coverImage: '',
@@ -173,16 +167,12 @@ export default function AdminModal({ isOpen, onClose, cms }) {
       tags: 'Java, Architecture',
     });
     setStatusMsg('✓ Article published successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const handleAddCert = async (e) => {
     e.preventDefault();
     if (!certForm.title) return;
-    await cms.addCertificate({
-      ...certForm,
-      skills: typeof certForm.skills === 'string' ? certForm.skills.split(',').map((s) => s.trim()).filter(Boolean) : certForm.skills,
-    });
+    await cms.addCertificate(cmsPayload('certificates', certForm));
     setCertForm({
       title: '',
       issuer: '',
@@ -194,16 +184,12 @@ export default function AdminModal({ isOpen, onClose, cms }) {
       skills: 'Java, React',
     });
     setStatusMsg('✓ Certificate added successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const handleAddEvent = async (e) => {
     e.preventDefault();
     if (!eventForm.title) return;
-    await cms.addEvent({
-      ...eventForm,
-      highlights: typeof eventForm.highlights === 'string' ? eventForm.highlights.split(',').map((h) => h.trim()).filter(Boolean) : eventForm.highlights,
-    });
+    await cms.addEvent(cmsPayload('events', eventForm));
     setEventForm({
       title: '',
       organization: '',
@@ -215,7 +201,6 @@ export default function AdminModal({ isOpen, onClose, cms }) {
       highlights: '',
     });
     setStatusMsg('✓ Event logged successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   // --- UPDATE / EDIT HANDLERS ---
@@ -231,15 +216,9 @@ export default function AdminModal({ isOpen, onClose, cms }) {
 
   const handleUpdateProject = async (id, e) => {
     e.preventDefault();
-    await cms.updateProject(id, {
-      ...editProjectForm,
-      tags: typeof editProjectForm.tags === 'string' ? editProjectForm.tags.split(',').map((t) => t.trim()).filter(Boolean) : editProjectForm.tags,
-      languages: typeof editProjectForm.languages === 'string' ? editProjectForm.languages.split(',').map((l) => l.trim()).filter(Boolean) : editProjectForm.languages,
-      categories: typeof editProjectForm.categories === 'string' ? editProjectForm.categories.split(',').map((c) => c.trim()).filter(Boolean) : editProjectForm.categories,
-    });
+    await cms.updateProject(id, cmsPayload('projects', editProjectForm));
     setEditingProjectId(null);
     setStatusMsg('✓ Project updated successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const startEditArticle = (a) => {
@@ -253,14 +232,10 @@ export default function AdminModal({ isOpen, onClose, cms }) {
   const handleUpdateArticle = async (id, e) => {
     e.preventDefault();
     if (cms.updateArticle) {
-      await cms.updateArticle(id, {
-        ...editArticleForm,
-        tags: typeof editArticleForm.tags === 'string' ? editArticleForm.tags.split(',').map((t) => t.trim()).filter(Boolean) : editArticleForm.tags,
-      });
+      await cms.updateArticle(id, cmsPayload('articles', editArticleForm));
     }
     setEditingArticleId(null);
     setStatusMsg('✓ Article updated successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const startEditCert = (c) => {
@@ -274,14 +249,10 @@ export default function AdminModal({ isOpen, onClose, cms }) {
   const handleUpdateCert = async (id, e) => {
     e.preventDefault();
     if (cms.updateCertificate) {
-      await cms.updateCertificate(id, {
-        ...editCertForm,
-        skills: typeof editCertForm.skills === 'string' ? editCertForm.skills.split(',').map((s) => s.trim()).filter(Boolean) : editCertForm.skills,
-      });
+      await cms.updateCertificate(id, cmsPayload('certificates', editCertForm));
     }
     setEditingCertId(null);
     setStatusMsg('✓ Certificate updated successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const startEditEvent = (evt) => {
@@ -295,14 +266,10 @@ export default function AdminModal({ isOpen, onClose, cms }) {
   const handleUpdateEvent = async (id, e) => {
     e.preventDefault();
     if (cms.updateEvent) {
-      await cms.updateEvent(id, {
-        ...editEventForm,
-        highlights: typeof editEventForm.highlights === 'string' ? editEventForm.highlights.split(',').map((h) => h.trim()).filter(Boolean) : editEventForm.highlights,
-      });
+      await cms.updateEvent(id, cmsPayload('events', editEventForm));
     }
     setEditingEventId(null);
     setStatusMsg('✓ Event updated successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const inputStyle = {
@@ -393,6 +360,12 @@ export default function AdminModal({ isOpen, onClose, cms }) {
             ✕
           </button>
         </div>
+
+        {statusMsg && (
+          <div role="status" style={{ fontFamily: 'var(--font-code)', fontSize: '0.75rem', color: 'var(--accent-secondary)', background: 'rgba(0,201,167,0.1)', padding: '0.4rem 0.8rem', borderRadius: '4px', border: '0.5px solid rgba(0,201,167,0.3)' }}>
+            {statusMsg}
+          </div>
+        )}
 
         {!authenticated ? (
           /* Authentication Screen */
@@ -486,12 +459,6 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                   Manage Portfolio Content
                 </h3>
               </div>
-
-              {statusMsg && (
-                <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.75rem', color: 'var(--accent-secondary)', background: 'rgba(0,201,167,0.1)', padding: '0.4rem 0.8rem', borderRadius: '4px', border: '0.5px solid rgba(0,201,167,0.3)' }}>
-                  {statusMsg}
-                </div>
-              )}
             </div>
 
             {/* Navigation Tabs */}
@@ -524,7 +491,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
             {/* TAB: PROJECTS */}
             {activeTab === 'projects' && (
               <div>
-                <form onSubmit={handleAddProject} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '6px', border: '0.5px solid var(--border-accent)', marginBottom: '1.5rem' }}>
+                <form onSubmit={e => runAction(() => handleAddProject(e))} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '6px', border: '0.5px solid var(--border-accent)', marginBottom: '1.5rem' }}>
                   <h4 style={{ fontFamily: 'var(--font-code)', fontSize: '0.8rem', color: 'var(--accent-primary)', marginBottom: '1rem' }}>+ ADD NEW PROJECT</h4>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -553,7 +520,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                     <div key={p.id} style={{ background: 'var(--bg-surface)', padding: '0.85rem 1rem', borderRadius: '4px', border: '0.5px solid var(--border-accent)' }}>
                       {editingProjectId === p.id ? (
                         /* EDIT PROJECT FORM */
-                        <form onSubmit={(e) => handleUpdateProject(p.id, e)}>
+                        <form onSubmit={e => runAction(() => handleUpdateProject(p.id, e))}>
                           <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.75rem', color: 'var(--accent-primary)', marginBottom: '0.75rem' }}>✏️ Editing Project: {p.title}</div>
                           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                             <input type="text" placeholder="Title" value={editProjectForm.title || ''} onChange={(e) => setEditProjectForm({ ...editProjectForm, title: e.target.value })} style={inputStyle} required />
@@ -588,7 +555,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                             <button onClick={() => startEditProject(p)} style={{ background: 'rgba(59, 130, 246, 0.12)', border: '0.5px solid var(--border-accent)', color: 'var(--accent-primary)', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
                               ✏️ Edit
                             </button>
-                            <button onClick={() => cms.deleteProject(p.id)} style={{ background: 'rgba(255,77,77,0.1)', border: '0.5px solid rgba(255,77,77,0.3)', color: '#ff4d4d', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
+                            <button onClick={() => runAction(() => cms.deleteProject(p.id))} style={{ background: 'rgba(255,77,77,0.1)', border: '0.5px solid rgba(255,77,77,0.3)', color: '#ff4d4d', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
                               🗑️ Delete
                             </button>
                           </div>
@@ -603,7 +570,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
             {/* TAB: ARTICLES */}
             {activeTab === 'articles' && (
               <div>
-                <form onSubmit={handleAddArticle} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '6px', border: '0.5px solid var(--border-accent)', marginBottom: '1.5rem' }}>
+                <form onSubmit={e => runAction(() => handleAddArticle(e))} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '6px', border: '0.5px solid var(--border-accent)', marginBottom: '1.5rem' }}>
                   <h4 style={{ fontFamily: 'var(--font-code)', fontSize: '0.8rem', color: 'var(--accent-primary)', marginBottom: '1rem' }}>+ WRITE NEW ARTICLE</h4>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -627,7 +594,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                     <div key={a.id} style={{ background: 'var(--bg-surface)', padding: '0.85rem 1rem', borderRadius: '4px', border: '0.5px solid var(--border-accent)' }}>
                       {editingArticleId === a.id ? (
                         /* EDIT ARTICLE FORM */
-                        <form onSubmit={(e) => handleUpdateArticle(a.id, e)}>
+                        <form onSubmit={e => runAction(() => handleUpdateArticle(a.id, e))}>
                           <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.75rem', color: 'var(--accent-primary)', marginBottom: '0.75rem' }}>✏️ Editing Article: {a.title}</div>
                           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                             <input type="text" placeholder="Title" value={editArticleForm.title || ''} onChange={(e) => setEditArticleForm({ ...editArticleForm, title: e.target.value })} style={inputStyle} required />
@@ -659,7 +626,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                             <button onClick={() => startEditArticle(a)} style={{ background: 'rgba(59, 130, 246, 0.12)', border: '0.5px solid var(--border-accent)', color: 'var(--accent-primary)', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
                               ✏️ Edit
                             </button>
-                            <button onClick={() => cms.deleteArticle(a.id)} style={{ background: 'rgba(255,77,77,0.1)', border: '0.5px solid rgba(255,77,77,0.3)', color: '#ff4d4d', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
+                            <button onClick={() => runAction(() => cms.deleteArticle(a.id))} style={{ background: 'rgba(255,77,77,0.1)', border: '0.5px solid rgba(255,77,77,0.3)', color: '#ff4d4d', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
                               🗑️ Delete
                             </button>
                           </div>
@@ -674,7 +641,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
             {/* TAB: CERTIFICATES */}
             {activeTab === 'certificates' && (
               <div>
-                <form onSubmit={handleAddCert} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '6px', border: '0.5px solid var(--border-accent)', marginBottom: '1.5rem' }}>
+                <form onSubmit={e => runAction(() => handleAddCert(e))} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '6px', border: '0.5px solid var(--border-accent)', marginBottom: '1.5rem' }}>
                   <h4 style={{ fontFamily: 'var(--font-code)', fontSize: '0.8rem', color: 'var(--accent-primary)', marginBottom: '1rem' }}>+ ADD CERTIFICATE</h4>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -700,7 +667,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                     <div key={c.id} style={{ background: 'var(--bg-surface)', padding: '0.85rem 1rem', borderRadius: '4px', border: '0.5px solid var(--border-accent)' }}>
                       {editingCertId === c.id ? (
                         /* EDIT CERTIFICATE FORM */
-                        <form onSubmit={(e) => handleUpdateCert(c.id, e)}>
+                        <form onSubmit={e => runAction(() => handleUpdateCert(c.id, e))}>
                           <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.75rem', color: 'var(--accent-primary)', marginBottom: '0.75rem' }}>✏️ Editing Certificate: {c.title}</div>
                           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                             <input type="text" placeholder="Title" value={editCertForm.title || ''} onChange={(e) => setEditCertForm({ ...editCertForm, title: e.target.value })} style={inputStyle} required />
@@ -734,7 +701,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                             <button onClick={() => startEditCert(c)} style={{ background: 'rgba(59, 130, 246, 0.12)', border: '0.5px solid var(--border-accent)', color: 'var(--accent-primary)', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
                               ✏️ Edit
                             </button>
-                            <button onClick={() => cms.deleteCertificate(c.id)} style={{ background: 'rgba(255,77,77,0.1)', border: '0.5px solid rgba(255,77,77,0.3)', color: '#ff4d4d', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
+                            <button onClick={() => runAction(() => cms.deleteCertificate(c.id))} style={{ background: 'rgba(255,77,77,0.1)', border: '0.5px solid rgba(255,77,77,0.3)', color: '#ff4d4d', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
                               🗑️ Delete
                             </button>
                           </div>
@@ -749,7 +716,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
             {/* TAB: EVENTS */}
             {activeTab === 'events' && (
               <div>
-                <form onSubmit={handleAddEvent} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '6px', border: '0.5px solid var(--border-accent)', marginBottom: '1.5rem' }}>
+                <form onSubmit={e => runAction(() => handleAddEvent(e))} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.25rem', borderRadius: '6px', border: '0.5px solid var(--border-accent)', marginBottom: '1.5rem' }}>
                   <h4 style={{ fontFamily: 'var(--font-code)', fontSize: '0.8rem', color: 'var(--accent-primary)', marginBottom: '1rem' }}>+ LOG NEW EVENT</h4>
 
                   <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -772,7 +739,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                     <div key={evt.id} style={{ background: 'var(--bg-surface)', padding: '0.85rem 1rem', borderRadius: '4px', border: '0.5px solid var(--border-accent)' }}>
                       {editingEventId === evt.id ? (
                         /* EDIT EVENT FORM */
-                        <form onSubmit={(e) => handleUpdateEvent(evt.id, e)}>
+                        <form onSubmit={e => runAction(() => handleUpdateEvent(evt.id, e))}>
                           <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.75rem', color: 'var(--accent-primary)', marginBottom: '0.75rem' }}>✏️ Editing Event: {evt.title}</div>
                           <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                             <input type="text" placeholder="Title" value={editEventForm.title || ''} onChange={(e) => setEditEventForm({ ...editEventForm, title: e.target.value })} style={inputStyle} required />
@@ -803,7 +770,7 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                             <button onClick={() => startEditEvent(evt)} style={{ background: 'rgba(59, 130, 246, 0.12)', border: '0.5px solid var(--border-accent)', color: 'var(--accent-primary)', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
                               ✏️ Edit
                             </button>
-                            <button onClick={() => cms.deleteEvent(evt.id)} style={{ background: 'rgba(255,77,77,0.1)', border: '0.5px solid rgba(255,77,77,0.3)', color: '#ff4d4d', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
+                            <button onClick={() => runAction(() => cms.deleteEvent(evt.id))} style={{ background: 'rgba(255,77,77,0.1)', border: '0.5px solid rgba(255,77,77,0.3)', color: '#ff4d4d', borderRadius: '3px', padding: '0.3rem 0.65rem', fontSize: '0.72rem', cursor: 'pointer' }}>
                               🗑️ Delete
                             </button>
                           </div>
