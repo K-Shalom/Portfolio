@@ -12,6 +12,16 @@ export function setAdminSession(session) {
 }
 export function clearAdminSession() { clearTimeout(expiryTimer); adminSession = null }
 export function hasAdminSession() { return Boolean(adminSession && adminSession.expiresAt > Date.now()) }
+export async function logoutAdmin() {
+  try {
+    await apiRequest('/api/logout', { method: 'POST', body: {}, admin: true })
+    return 'Logged out of CMS admin. Server session revoked.'
+  } catch {
+    return 'Signed out locally. Server session revocation could not be confirmed; the session will expire automatically.'
+  } finally {
+    clearAdminSession()
+  }
+}
 export async function apiRequest(path, { method = 'GET', body, admin = false } = {}) {
   if (admin && !hasAdminSession()) {
     clearAdminSession()

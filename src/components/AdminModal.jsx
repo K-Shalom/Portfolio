@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { apiRequest, setAdminSession, clearAdminSession } from '../services/api';
+import { apiRequest, setAdminSession, logoutAdmin } from '../services/api';
+import { cmsPayload } from '../services/cmsPayload';
 
 
 export default function AdminModal({ isOpen, onClose, cms }) {
@@ -122,29 +123,22 @@ export default function AdminModal({ isOpen, onClose, cms }) {
   };
 
   const handleLogout = async () => {
-    setStatusMsg('Logged out of CMS admin');
-    try { await apiRequest('/api/logout', { method: 'POST', body: {}, admin: true }); }
-    catch { setStatusMsg('Signed out locally. Server sessions expire automatically if the connection failed.'); }
-    finally { clearAdminSession(); cms.clearPrivateData(); void cms.refreshAll(); }
+    const message = await logoutAdmin();
+    cms.clearPrivateData();
+    void cms.refreshAll();
     setAuthenticated(false);
     setPasscode('');
     setCodeRequested(false);
     setRequestMsg('');
     setVerifyError('');
-    setStatusMsg('Logged out of CMS admin');
-    setTimeout(() => setStatusMsg(''), 2000);
+    setStatusMsg(message);
   };
 
   // --- CREATE HANDLERS ---
   const handleAddProject = async (e) => {
     e.preventDefault();
     if (!projectForm.title) return;
-    await cms.addProject({
-      ...projectForm,
-      tags: typeof projectForm.tags === 'string' ? projectForm.tags.split(',').map((t) => t.trim()).filter(Boolean) : projectForm.tags,
-      languages: typeof projectForm.languages === 'string' ? projectForm.languages.split(',').map((l) => l.trim()).filter(Boolean) : projectForm.languages,
-      categories: typeof projectForm.categories === 'string' ? projectForm.categories.split(',').map((c) => c.trim()).filter(Boolean) : projectForm.categories,
-    });
+    await cms.addProject(cmsPayload('projects', projectForm));
     setProjectForm({
       title: '',
       coverImage: '',
@@ -157,16 +151,12 @@ export default function AdminModal({ isOpen, onClose, cms }) {
       featured: false,
     });
     setStatusMsg('✓ Project published successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const handleAddArticle = async (e) => {
     e.preventDefault();
     if (!articleForm.title) return;
-    await cms.addArticle({
-      ...articleForm,
-      tags: typeof articleForm.tags === 'string' ? articleForm.tags.split(',').map((t) => t.trim()).filter(Boolean) : articleForm.tags,
-    });
+    await cms.addArticle(cmsPayload('articles', articleForm));
     setArticleForm({
       title: '',
       coverImage: '',
@@ -177,16 +167,12 @@ export default function AdminModal({ isOpen, onClose, cms }) {
       tags: 'Java, Architecture',
     });
     setStatusMsg('✓ Article published successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const handleAddCert = async (e) => {
     e.preventDefault();
     if (!certForm.title) return;
-    await cms.addCertificate({
-      ...certForm,
-      skills: typeof certForm.skills === 'string' ? certForm.skills.split(',').map((s) => s.trim()).filter(Boolean) : certForm.skills,
-    });
+    await cms.addCertificate(cmsPayload('certificates', certForm));
     setCertForm({
       title: '',
       issuer: '',
@@ -198,16 +184,12 @@ export default function AdminModal({ isOpen, onClose, cms }) {
       skills: 'Java, React',
     });
     setStatusMsg('✓ Certificate added successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const handleAddEvent = async (e) => {
     e.preventDefault();
     if (!eventForm.title) return;
-    await cms.addEvent({
-      ...eventForm,
-      highlights: typeof eventForm.highlights === 'string' ? eventForm.highlights.split(',').map((h) => h.trim()).filter(Boolean) : eventForm.highlights,
-    });
+    await cms.addEvent(cmsPayload('events', eventForm));
     setEventForm({
       title: '',
       organization: '',
@@ -219,7 +201,6 @@ export default function AdminModal({ isOpen, onClose, cms }) {
       highlights: '',
     });
     setStatusMsg('✓ Event logged successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   // --- UPDATE / EDIT HANDLERS ---
@@ -235,15 +216,9 @@ export default function AdminModal({ isOpen, onClose, cms }) {
 
   const handleUpdateProject = async (id, e) => {
     e.preventDefault();
-    await cms.updateProject(id, {
-      ...Object.fromEntries(Object.entries(editProjectForm).filter(([key]) => key !== 'id')),
-      tags: typeof editProjectForm.tags === 'string' ? editProjectForm.tags.split(',').map((t) => t.trim()).filter(Boolean) : editProjectForm.tags,
-      languages: typeof editProjectForm.languages === 'string' ? editProjectForm.languages.split(',').map((l) => l.trim()).filter(Boolean) : editProjectForm.languages,
-      categories: typeof editProjectForm.categories === 'string' ? editProjectForm.categories.split(',').map((c) => c.trim()).filter(Boolean) : editProjectForm.categories,
-    });
+    await cms.updateProject(id, cmsPayload('projects', editProjectForm));
     setEditingProjectId(null);
     setStatusMsg('✓ Project updated successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const startEditArticle = (a) => {
@@ -257,14 +232,10 @@ export default function AdminModal({ isOpen, onClose, cms }) {
   const handleUpdateArticle = async (id, e) => {
     e.preventDefault();
     if (cms.updateArticle) {
-      await cms.updateArticle(id, {
-        ...Object.fromEntries(Object.entries(editArticleForm).filter(([key]) => key !== 'id')),
-        tags: typeof editArticleForm.tags === 'string' ? editArticleForm.tags.split(',').map((t) => t.trim()).filter(Boolean) : editArticleForm.tags,
-      });
+      await cms.updateArticle(id, cmsPayload('articles', editArticleForm));
     }
     setEditingArticleId(null);
     setStatusMsg('✓ Article updated successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const startEditCert = (c) => {
@@ -278,14 +249,10 @@ export default function AdminModal({ isOpen, onClose, cms }) {
   const handleUpdateCert = async (id, e) => {
     e.preventDefault();
     if (cms.updateCertificate) {
-      await cms.updateCertificate(id, {
-        ...Object.fromEntries(Object.entries(editCertForm).filter(([key]) => key !== 'id')),
-        skills: typeof editCertForm.skills === 'string' ? editCertForm.skills.split(',').map((s) => s.trim()).filter(Boolean) : editCertForm.skills,
-      });
+      await cms.updateCertificate(id, cmsPayload('certificates', editCertForm));
     }
     setEditingCertId(null);
     setStatusMsg('✓ Certificate updated successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const startEditEvent = (evt) => {
@@ -299,14 +266,10 @@ export default function AdminModal({ isOpen, onClose, cms }) {
   const handleUpdateEvent = async (id, e) => {
     e.preventDefault();
     if (cms.updateEvent) {
-      await cms.updateEvent(id, {
-        ...Object.fromEntries(Object.entries(editEventForm).filter(([key]) => key !== 'id')),
-        highlights: typeof editEventForm.highlights === 'string' ? editEventForm.highlights.split(',').map((h) => h.trim()).filter(Boolean) : editEventForm.highlights,
-      });
+      await cms.updateEvent(id, cmsPayload('events', editEventForm));
     }
     setEditingEventId(null);
     setStatusMsg('✓ Event updated successfully!');
-    setTimeout(() => setStatusMsg(''), 3000);
   };
 
   const inputStyle = {
@@ -397,6 +360,12 @@ export default function AdminModal({ isOpen, onClose, cms }) {
             ✕
           </button>
         </div>
+
+        {statusMsg && (
+          <div role="status" style={{ fontFamily: 'var(--font-code)', fontSize: '0.75rem', color: 'var(--accent-secondary)', background: 'rgba(0,201,167,0.1)', padding: '0.4rem 0.8rem', borderRadius: '4px', border: '0.5px solid rgba(0,201,167,0.3)' }}>
+            {statusMsg}
+          </div>
+        )}
 
         {!authenticated ? (
           /* Authentication Screen */
@@ -490,12 +459,6 @@ export default function AdminModal({ isOpen, onClose, cms }) {
                   Manage Portfolio Content
                 </h3>
               </div>
-
-              {statusMsg && (
-                <div style={{ fontFamily: 'var(--font-code)', fontSize: '0.75rem', color: 'var(--accent-secondary)', background: 'rgba(0,201,167,0.1)', padding: '0.4rem 0.8rem', borderRadius: '4px', border: '0.5px solid rgba(0,201,167,0.3)' }}>
-                  {statusMsg}
-                </div>
-              )}
             </div>
 
             {/* Navigation Tabs */}

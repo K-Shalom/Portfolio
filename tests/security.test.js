@@ -2,8 +2,54 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { createApp, configuration } from '../server.js'
+import { cmsPayload } from '../src/services/cmsPayload.js'
 
 const source = fs.readFileSync(new URL('../data_store.json', import.meta.url), 'utf8')
+for (const kind of ['projects', 'articles', 'certificates', 'events']) {
+  test(`actual stored ${kind}: supported form payloads create/edit/delete without losing metadata`, async t => {
+    const f = await fixture(t), session = await f.login()
+    const stored = JSON.parse(source)
+    for (const original of stored[kind]) {
+      const form = { ...original, unexpectedStoredMetadata: 'must not be forwarded' }
+      for (const key of ['tags', 'languages', 'categories', 'skills', 'highlights']) {
+        if (Array.isArray(form[key])) form[key] = form[key].join(', ')
+      }
+      const payload = cmsPayload(kind, form)
+      assert.deepEqual(payload, Object.fromEntries(Object.entries(original).filter(([key]) => key !== 'id')))
+      const existing = await f.call(`/api/${kind}/${original.id}`, { method: 'PUT', token: session.token, body: payload })
+      assert.equal(existing.status, 200)
+      assert.deepEqual(existing.data, original)
+      const created = await f.call('/api/' + kind, { method: 'POST', token: session.token, body: payload })
+      assert.equal(created.status, 201)
+      assert.notEqual(created.data.id, original.id)
+      const editedPayload = cmsPayload(kind, { ...created.data, title: 'Edited ' + original.title })
+      const edited = await f.call(`/api/${kind}/${created.data.id}`, { method: 'PUT', token: session.token, body: editedPayload })
+      assert.equal(edited.status, 200)
+      assert.deepEqual(edited.data, { ...created.data, title: editedPayload.title })
+      for (const method of ['POST', 'PUT']) {
+        const rejected = await f.call('/api/' + kind + (method === 'PUT' ? '/' + created.data.id : ''), { method, token: session.token, body: { ...payload, unknown: 'reject' } })
+        assert.equal(rejected.status, 400)
+      }
+      assert.deepEqual((await f.call(`/api/${kind}?includeDrafts=true`, { token: session.token })).data.find(item => item.id === created.data.id), edited.data)
+      assert.equal((await f.call(`/api/${kind}/${created.data.id}`, { method: 'DELETE', token: session.token, body: {} })).status, 200)
+    }
+    const finalStore = structuredClone(f.writes.at(-1))
+    finalStore.projects = finalStore.projects.filter(item => item.id !== 'private')
+    assert.deepEqual(finalStore, stored)
+    assert.equal(fs.readFileSync(new URL('../data_store.json', import.meta.url), 'utf8'), source)
+  })
+}
+
+test('certificate verified metadata remains strictly boolean; omitted metadata is preserved', async t => {
+  const f = await fixture(t), session = await f.login()
+  const certificate = JSON.parse(source).certificates[0]
+  for (const verified of ['true', 1, null]) {
+    assert.equal((await f.call('/api/certificates/' + certificate.id, { method: 'PUT', token: session.token, body: { verified } })).status, 400)
+  }
+  const edited = await f.call('/api/certificates/' + certificate.id, { method: 'PUT', token: session.token, body: { title: 'Edited certificate' } })
+  assert.equal(edited.status, 200)
+  assert.deepEqual(edited.data, { ...certificate, title: 'Edited certificate' })
+})
 async function fixture(t, extra = {}) {
   let time = 1000000
   const mail = [], prompts = [], writes = []

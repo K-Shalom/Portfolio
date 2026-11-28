@@ -30,6 +30,15 @@ test('client session is explicit bearer-only, expires/revokes locally, and never
     client.setAdminSession({ token, expiresAt: Date.now() - 1 })
     await assert.rejects(client.apiRequest('/api/projects', { admin: true }), /sign in again/)
     client.clearAdminSession()
+    // Logout always drops local credentials; only confirmed revocation reports success.
+    client.setAdminSession({ token, expiresAt: Date.now() + 60000 })
+    globalThis.fetch = async () => { throw new Error('Network unavailable') }
+    assert.match(await client.logoutAdmin(), /revocation could not be confirmed/)
+    assert.equal(client.hasAdminSession(), false)
+    client.setAdminSession({ token, expiresAt: Date.now() + 60000 })
+    globalThis.fetch = async () => ({ ok: true, status: 200, json: async () => ({ success: true }) })
+    assert.match(await client.logoutAdmin(), /Server session revoked/)
+    assert.equal(client.hasAdminSession(), false)
   } finally {
     globalThis.fetch = originalFetch
     globalThis.window = originalWindow
