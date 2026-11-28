@@ -1,6 +1,6 @@
 # Portfolio V2 progress
 
-Updated November 28, 2026 (Africa/Kigali). Current phase: **Phase 0 — IMPLEMENTED** (implementation complete). GitHub integration: **BLOCKED** at merge; PR #1 is open, reviewed and pushed. Phases 1–12 remain PENDING; Phase 1 requires explicit authorization.
+Updated November 28, 2026 (Africa/Kigali). Current phase: **Phase 0 — IMPLEMENTED** (implementation complete). GitHub integration: **UNDER REVIEW**; npm correction Preview passed; PR #1 remains open awaiting final merge/production authorization and other required checks/approvals. Phases 1–12 remain PENDING; Phase 1 requires explicit authorization.
 
 ## Authoritative scope and decisions
 The final scope confirmation resolves the missing-master blocker. Do not request that earlier prompt again. PORTFOLIO_MASTER_SPEC.md stores the complete confirmation, detailed design/RP requirements and workflow; use repository documents in future sessions. Missing screenshots/status/security evidence remains in CONTENT_REVIEW.md for later phases, not Phase 0 blockers. Preserve nine stored projects and authentic content; verify identity before any merge, keep drafts where uncertain, and avoid duplicate records. Future branches use portfolio-v2-phase-NN-description to avoid a conflict with the existing portfolio-v2 ref.
@@ -71,7 +71,7 @@ Apply AGENTS.md's eleven steps: prepare/synchronize verified default branch; sco
 ## GitHub integration tracker
 | Phase | Branch | Implementation commit | Push | PR URL / status | Merge |
 | --- | --- | --- | --- | --- | --- |
-| 0 | portfolio-v2 | 08741bfa4e58bd17c56f6297e53aae87566d1b14 | IMPLEMENTED | https://github.com/K-Shalom/Portfolio/pull/1 / UNDER REVIEW | BLOCKED: failed Cloudflare check and production deployment authorization |
+| 0 | portfolio-v2 | 08741bfa4e58bd17c56f6297e53aae87566d1b14 | IMPLEMENTED | https://github.com/K-Shalom/Portfolio/pull/1 / UNDER REVIEW | BLOCKED: merge prohibited pending final authorization; corrected Preview passes |
 | 1 | portfolio-v2-phase-01-security (planned) | None | PENDING | None / PENDING | PENDING |
 | 2 | portfolio-v2-phase-02-architecture (planned) | None | PENDING | None / PENDING | PENDING |
 | 3 | portfolio-v2-phase-03-design-system (planned) | None | PENDING | None / PENDING | PENDING |
@@ -116,3 +116,8 @@ The owner explicitly authorized removal of empty bun.lock, clean npm installatio
 Local checks: npm ci PASS (322 packages installed, 323 audited); npm run build PASS (383 modules, Vite 8.1.5, 3.29 s); npm run lint FAIL with exactly the three pre-existing Timeline.jsx errors (unused useEffect at line 1; two react-hooks/immutability reports at line 164), no new lint failures. Online install audit reported 21 vulnerabilities (9 moderate, 8 high, 4 critical), plus babel-merge deprecation and an unapproved @openrouter/sdk postinstall warning; no audit fix, script approval or dependency update performed. Earlier offline zero-advisory result was cache-limited and is not current security clearance. Existing dependency findings are tracked for Phase 1 assessment; no Phase 1 fixes implemented.
 
 Correction self-review PASS for the authorized minimal scope: only zero-byte bun.lock deletion plus the three review/tracking documents since recovery commit 7a7c54e. package.json, package-lock.json, application source and all stored content preserved; npm lock remains authoritative. Existing documentation recovery commit will be included in the authorized push. No Cloudflare settings/production changes, DNS changes or merge. Provider result is pending the authorized push; do not claim success until logs/checks confirm it.
+
+## Verified corrected Preview result
+Cloudflare Preview PASS for correction abd387a78a2027b553780549d24fb2005bfd61c2, deployment 03cb7a4f-7f7b-4c58-9009-a8537c27b87e. Signed-in complete log confirms Node 22.23.4/npm 10.9.9 and automatic npm clean-install --progress=false (325 packages), followed by existing npm install --legacy-peer-deps (31 packages removed) and npm run build. Vite 8.1.5 transformed 383 modules, build succeeded (409 ms), assets published and deployment success (31 s total). No Bun selected and no installation override/account-setting change required. Platform-specific package counts differ from local npm ci; both installations/builds passed. Preview: https://03cb7a4f.portfolio-csd.pages.dev/ (alias https://portfolio-v2.portfolio-csd.pages.dev/).
+
+The dependency-install failure is resolved. Self-review confirms the minimal lockfile correction plus necessary documentation only, with npm package-lock.json unchanged. Prior investigation wording describes historical states; this result supersedes the failed-check/no-push state for the corrected commit. PR remains open and must not be merged under the latest instruction. Ready for final merge authorization review subject to refreshed checks/required approvals, existing lint and dependency findings, and explicit production-deployment authorization. Independent review has not been fabricated. Production main remains unmodified; Phase 1 remains unauthorized.
