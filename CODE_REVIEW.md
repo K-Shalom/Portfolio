@@ -71,3 +71,24 @@ Branch protection endpoint: 404 Branch not protected. Repository rulesets [] and
 Fresh audit classification: 21 package entries, 6 direct/15 transitive, 9 moderate/8 high/4 critical; complete Phase 1 priority table in DEPLOYMENT_REVIEW.md. No upgrades performed. Retain three Timeline.jsx errors and Phase 6 ownership (earlier if touched). These pre-existing risks remain visible and are not new lockfile-removal regressions; the owner must evaluate residual risk in final release authorization.
 
 Production consequence confirmed by signed-in Cloudflare settings: main is production branch, automatic deployments Enabled, custom domains shalomk.me/www.shalomk.me Active. Merging main triggers production build/deployment. GitHub Pages also publishes main; Render auto-deploy settings remain unverified. Current instruction explicitly prohibits merge until production deployment approval, then only with mandatory checks/reviews satisfied. No merge, production deployment, DNS/environment/hosting setting change or Phase 1 work performed. No merge SHA exists. Ready for authorization consideration, not unconditionally READY TO MERGE.
+
+## Phase 1 dedicated security-focused self-review
+
+Outcome: implementation reviewed for PR submission, not independent human approval or permission to merge/deploy. Reviewed server.js, security/controls.js, security/validation.js, frontend API/session transport, CMS hook, AdminModal, Contact, AI hook, Vite guard, static headers, environment ignore/example, dependency manifests/lock, tests and all Phase 1 documentation. Full diff checked for unrelated changes, credentials and preserved stored data.
+
+| Severity | Finding | Fix / result |
+| --- | --- | --- |
+| Critical | Original anonymous CMS writes/draft access | Shared server auth on every create/update/delete and privileged draft read; negative tests all collections pass. |
+| High | OTP guessing/replay, no actual session | crypto.randomInt, HMAC digest, expiry/single use/five attempts/cooldown/limits; expiring/revocable digest-backed sessions; reuse/expiry/logout/new-login revocation tested. |
+| High | Browser provider secret and direct provider spend | Server request boundary, published-only projection and bounded costs; private-key VITE guard and bundle checks. Production key rotation/settings still require owner action. |
+| High | CORS accepted every origin | Exact approved origins, reject other origins, allow Authorization preflight; bearer rather than cookies prevents ambient-cookie CSRF; tests pass. |
+| High/Medium | Mass assignment/XSS/header injection/payload abuse | Per-route allowed fields, immutable IDs, safe URLs/limits/escaping, no HTML rendering added; mail/API validation tests pass. |
+| Medium | Existing edit forms include ID | Strip ID from UI edit payload, still reject IDs on server; authenticated CRUD remains supported. |
+| Medium | Failed writes pretended success; drafts could persist in client cache | Throw failures; no local write/cache fallback; clear private data on logout/expiry with request-generation race guard; mocked client transport rejects failed writes. |
+| Medium | Provider/file error disclosure and unlimited operations | Generic errors, fixed provider URL, caps/timeouts/deduplication, bounded limiter keys; negative error/rate tests pass. |
+| Low | Newly introduced lint/type/ref ordering issues | Corrected all new issues; lint now only original three Timeline.jsx errors with zero warnings. |
+| Informational | Browser automation timed out | Recorded honestly; API/client behavior tested, visual/manual staging verification remains pre-merge operator work. |
+
+No unresolved critical/high implementation bypass was found in this self-review. Release remains conditional on separately approved production configuration/rotation, staged browser compatibility checks and merge authorization. No independent approval is implied. Dependency findings reviewed individually and final advisory count zero; this is not a full security certification. All 12 test scenarios pass with mocks, production build and bundle scan pass, local HTTP/count checks pass; baseline lint exceptions remain tracked. Re-run affected checks for any subsequent code change. Rollback must not restore exposed CMS writes or browser keys; fail closed if configuration is missing.
+
+Phase 1 CI: pinned official checkout/setup-node actions, read-only contents permission, no persisted checkout credentials or provider secrets. Runs clean install, 12 mocked tests, build, bundle inspection, online audit and an explicit exact-baseline lint comparison. npm run lint:phase1 fails on any new diagnostic or baseline drift and reports the three unchanged Timeline.jsx errors; it does not claim full npm run lint passes. The full lint command remains a recorded baseline failure, as expressly allowed by the owner. No production deployment job is added. Local regression server port 3015 was stopped after read-only smoke tests.

@@ -29,3 +29,7 @@ dist-ssr
 data_store.json
 metadata.json
 bun.lockpackage-lock.json
+
+.env.*
+!.env.example
+data_store.json.tmp
